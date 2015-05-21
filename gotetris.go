@@ -91,7 +91,7 @@ type Game struct {
 	timer       *time.Timer
 	numLines    int
 	speed       int
-	board       [][]int
+	board       [][]int // [y][x]
 	xToErase    []int
 	yToErase    []int
 	dx          []int
@@ -160,6 +160,21 @@ loop:
 			if ev.Type == termbox.EventKey && ev.Key == termbox.KeyEsc {
 				break loop
 			}
+
+			//// 	document.on.keyDown.add(g.onKeyDown)
+			//// 	document.on.keyUp.add(onKeyUp)
+			////
+			//// 	SelectElement levelSelect = query("#level-select")
+			//// 	levelSelect.on.change.add((Event e) {
+			//// 		g.onLevelSelectChange()
+			//// 		levelSelect.blur()
+			//// 	})
+			////
+			//// 	InputElement startButton = query("#start-button")
+			//// 	InputElement pauseButton = query("#pause-button")
+			//// 	startButton.on.click.add((event) => g.start())
+			//// 	pauseButton.on.click.add((event) => g.pause())
+
 		default:
 			draw()
 			time.Sleep(10 * time.Millisecond)
@@ -167,55 +182,58 @@ loop:
 	}
 }
 
-//// func (g *Game) NewGame() {
-//// 	g.curLevel = defaultLevel
-//// 	g.curX = 1
-//// 	g.curY = 1
-//// 	g.skyline = g.boardHeight - 1
-//// 	g.gamePaused = false
-//// 	g.gameStarted = false
-//// 	g.numLines = 0
-//// 	g.speed = slowestSpeed - fastestSpeed * defaultLevel
-////
-//// 	// Keystroke processing
-//// 	g.isActiveLeft = false
-//// 	g.isActiveRight = false
-//// 	g.isActiveUp = false
-//// 	g.isActiveDown = false
-//// 	g.isActiveSpace = false
-////
-//// 	g.board = []
-//// 	g.xToErase = [0, 0, 0, 0]
-//// 	g.yToErase = [0, 0, 0, 0]
-//// 	g.dx = [0, 0, 0, 0]
-//// 	g.dy = [0, 0, 0, 0]
-//// 	g.dxPrime = [0, 0, 0, 0]
-//// 	g.dyPrime = [0, 0, 0, 0]
-//// 	g.dxBank = [[], [0, 1, -1, 0], [0, 1, -1, -1], [0, 1, -1, 1], [0, -1, 1, 0], [0, 1, -1, 0], [0, 1, -1, -2], [0, 1, 1, 0]]
-//// 	g.dyBank = [[], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 1, 1], [0, 0, 1, 1], [0, 0, 0, 0], [0, 0, 1, 1]]
-////
-//// 	for i := 0; i < g.boardHeight; i++ {
-//// 		g.board.add([])
-//// 		for j := 0; j < g.boardWidth; j++ {
-//// 			g.board[i].add(0)
-//// 		}
-//// 	}
-////
-//// 	document.on.keyDown.add(g.onKeyDown)
-//// 	document.on.keyUp.add(onKeyUp)
-////
-//// 	SelectElement levelSelect = query("#level-select")
-//// 	levelSelect.on.change.add((Event e) {
-//// 		g.onLevelSelectChange()
-//// 		levelSelect.blur()
-//// 	})
-////
-//// 	InputElement startButton = query("#start-button")
-//// 	InputElement pauseButton = query("#pause-button")
-//// 	startButton.on.click.add((event) => g.start())
-//// 	pauseButton.on.click.add((event) => g.pause())
-//// }
-////
+func (g *Game) NewGame() {
+	g.curLevel = defaultLevel
+	g.curX = 1
+	g.curY = 1
+	g.skyline = boardHeight - 1
+	g.gamePaused = false
+	g.gameStarted = false
+	g.numLines = 0
+	g.speed = slowestSpeed - fastestSpeed*defaultLevel
+
+	// Keystroke processing
+	g.isActiveLeft = false
+	g.isActiveRight = false
+	g.isActiveUp = false
+	g.isActiveDown = false
+
+	g.board = make([][]int, boardHeight)
+	for i := 0; i < boardHeight; i++ {
+		g.board[i] = make([]int, boardWidth)
+		for j := 0; j < boardWidth; j++ {
+			g.board[i][j] = 0
+		}
+	}
+
+	g.xToErase = []int{0, 0, 0, 0}
+	g.yToErase = []int{0, 0, 0, 0}
+	g.dx = []int{0, 0, 0, 0}
+	g.dy = []int{0, 0, 0, 0}
+	g.dxPrime = []int{0, 0, 0, 0}
+	g.dyPrime = []int{0, 0, 0, 0}
+	g.dxBank = [][]int{
+		{},
+		{0, 1, -1, 0},
+		{0, 1, -1, -1},
+		{0, 1, -1, 1},
+		{0, -1, 1, 0},
+		{0, 1, -1, 0},
+		{0, 1, -1, -2},
+		{0, 1, 1, 0},
+	}
+	g.dyBank = [][]int{
+		{},
+		{0, 0, 0, 1},
+		{0, 0, 0, 1},
+		{0, 0, 0, 1},
+		{0, 0, 1, 1},
+		{0, 0, 1, 1},
+		{0, 0, 0, 0},
+		{0, 0, 1, 1},
+	}
+}
+
 //// func (g *Game) run() {
 //// 	g.drawBoard()
 //// 	g.resetGame()
