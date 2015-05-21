@@ -53,6 +53,20 @@ var instructions = []string{
 	"Lines: %v",
 }
 
+// Game play
+const numSquares = 4
+const numTypes = 7
+const numPieceColors = 8
+const defaultLevel = 1
+const maxLevel = 10
+const rowsPerLevel = 5
+const slowestSpeed = 700
+const fastestSpeed = 60
+
+// Keystroke processing
+const initialDelay = 200
+const repeatDelay = 20
+
 func tbprint(x, y int, fg, bg termbox.Attribute, msg string) {
 	for _, c := range msg {
 		termbox.SetCell(x, y, c, fg, bg)
@@ -109,38 +123,6 @@ loop:
 	}
 }
 
-//// // Game play
-//// const numSquares = 4
-//// const numTypes = 7
-//// const numImages = 8
-//// const defaultLevel = 1
-//// const maxLevel = 10
-//// const rowsPerLevel = 5
-//// const boardHeight = 16
-//// const boardWidth = 10
-//// const slowestSpeed = 700
-//// const fastestSpeed = 60
-//// const squareWidth = 16
-//// const squareHeight = 16
-//// 
-//// // Keystroke processing
-//// const initialDelay = 200
-//// const repeatDelay = 20
-//// 
-//// // These are for Netscape.
-//// const leftNN = " 52 "
-//// const rightNN = " 54 "
-//// const upNN = " 56 53 "
-//// const downNN = " 50 "
-//// const spaceNN = " 32 "
-//// 
-//// // These are for Internet Explorer.
-//// const leftIE = " 37 52 100 "
-//// const rightIE = " 39 54 102 "
-//// const upIE = " 38 56 53 104 101 "
-//// const downIE = " 40 50 98 "
-//// const spaceIE = " 32 "
-//// 
 //// type struct Game {
 //// 	curLevel int
 //// 	curX int
@@ -208,7 +190,7 @@ loop:
 //// 	g.dxBank = [[], [0, 1, -1, 0], [0, 1, -1, -1], [0, 1, -1, 1], [0, -1, 1, 0], [0, 1, -1, 0], [0, 1, -1, -2], [0, 1, 1, 0]]
 //// 	g.dyBank = [[], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 1, 1], [0, 0, 1, 1], [0, 0, 0, 0], [0, 0, 1, 1]]
 //// 
-//// 	for i := 0; i < numImages; i++ {
+//// 	for i := 0; i < numPieceColors; i++ {
 //// 		img := new(Element.tag("img"))
 //// 		img.src = "images/s${i}.png"
 //// 		g.squareImages.add(img)
@@ -277,14 +259,11 @@ loop:
 //// 			div.nodes.add(img)
 //// 			img.id = "s-$i-$j"
 //// 			img.src = "images/s${g.board[i][j].abs()}.png"
-//// 			img.width = squareWidth
-//// 			img.height = squareHeight
 //// 		}
 //// 		rightMargin := new(Element.tag("img"))
 //// 		div.nodes.add(rightMargin)
 //// 		rightMargin.src = "images/g.png"
 //// 		rightMargin.width = 1
-//// 		rightMargin.height = squareHeight
 //// 	}
 //// 	trailingDiv = new(Element.tag("div"))
 //// 	pre.nodes.add(trailingDiv)
