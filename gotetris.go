@@ -151,6 +151,8 @@ func main() {
 		}
 	}()
 
+	NewGame()
+
 	draw()
 
 loop:
@@ -182,7 +184,9 @@ loop:
 	}
 }
 
-func (g *Game) NewGame() {
+func NewGame() (g *Game) {
+	g = new(Game)
+
 	g.curLevel = defaultLevel
 	g.curX = 1
 	g.curY = 1
@@ -212,6 +216,7 @@ func (g *Game) NewGame() {
 	g.dy = []int{0, 0, 0, 0}
 	g.dxPrime = []int{0, 0, 0, 0}
 	g.dyPrime = []int{0, 0, 0, 0}
+
 	g.dxBank = [][]int{
 		{},
 		{0, 1, -1, 0},
@@ -222,6 +227,7 @@ func (g *Game) NewGame() {
 		{0, 1, -1, -2},
 		{0, 1, 1, 0},
 	}
+
 	g.dyBank = [][]int{
 		{},
 		{0, 0, 0, 1},
@@ -232,6 +238,8 @@ func (g *Game) NewGame() {
 		{0, 0, 0, 0},
 		{0, 0, 1, 1},
 	}
+
+	return
 }
 
 //// func (g *Game) run() {
