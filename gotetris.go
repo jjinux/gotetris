@@ -346,7 +346,7 @@ func NewGame() (g *Game) {
 //// }
 ////
 //// func (g *Game) onKeyDown(event KeyboardEvent) {
-//// 	// I"m positive there are more modern ways to do keyboard event handling.
+//// 	// I'm positive there are more modern ways to do keyboard event handling.
 //// 	String keyNN, keyIE
 //// 	keyNN = " ${event.keyCode} "
 //// 	keyIE = " ${event.keyCode} "
