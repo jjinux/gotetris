@@ -110,555 +110,560 @@ loop:
 // /**
 //  * This is an implementation of Tetris in Dart.
 //  *
-//  * Warning: This is my first Dart program, and I haven't even read the tutorial
-//  * yet!  Nonetheless, it does work, and it's fairly clean.
+//  * Warning: This is my first Dart program, and I haven"t even read the tutorial
+//  * yet!  Nonetheless, it does work, and it"s fairly clean.
 //  *
 //  * This code was inspired by Alexei Kourbatov (http://www.javascripter.net).
 //  */
 
-// library game;
-// import 'dart:html';
-// import 'dart:math';
-// import 'dart:async';
+// package game
 
-// class Game {
+// import "dart:html"
+// import "dart:math"
+// import "dart:async"
 
-//   static final NUM_SQUARES = 4;
-//   static final NUM_TYPES = 7;
-//   static final NUM_IMAGES = 8;
-//   static final DEFAULT_LEVEL = 1;
-//   static final MAX_LEVEL = 10;
-//   static final ROWS_PER_LEVEL = 5;
-//   static final BOARD_HEIGHT = 16;
-//   static final BOARD_WIDTH = 10;
-//   static final SLOWEST_SPEED = 700;
-//   static final FASTEST_SPEED = 60;
-//   static final SQUARE_WIDTH = 16;
-//   static final SQUARE_HEIGHT = 16;
+// const numSquares = 4
+// const numTypes = 7
+// const numImages = 8
+// const defaultLevel = 1
+// const maxLevel = 10
+// const rowsPerLevel = 5
+// const boardHeight = 16
+// const boardWidth = 10
+// const slowestSpeed = 700
+// const fastestSpeed = 60
+// const squareWidth = 16
+// const squareHeight = 16
 
-//   // Keystroke processing
-//   static final INITIAL_DELAY = 200;
-//   static final REPEAT_DELAY = 20;
+// // Keystroke processing
+// const initialDelay = 200
+// const repeatDelay = 20
 
-//   // These are for Netscape.
-//   static final LEFT_NN = ' 52 ';
-//   static final RIGHT_NN = ' 54 ';
-//   static final UP_NN = ' 56 53 ';
-//   static final DOWN_NN = ' 50 ';
-//   static final SPACE_NN = ' 32 ';
+// // These are for Netscape.
+// const leftNN = " 52 "
+// const rightNN = " 54 "
+// const upNN = " 56 53 "
+// const downNN = " 50 "
+// const spaceNN = " 32 "
 
-//   // These are for Internet Explorer.
-//   static final LEFT_IE = ' 37 52 100 ';
-//   static final RIGHT_IE = ' 39 54 102 ';
-//   static final UP_IE = ' 38 56 53 104 101 ';
-//   static final DOWN_IE = ' 40 50 98 ';
-//   static final SPACE_IE = ' 32 ';
+// // These are for Internet Explorer.
+// const leftIE = " 37 52 100 "
+// const rightIE = " 39 54 102 "
+// const upIE = " 38 56 53 104 101 "
+// const downIE = " 40 50 98 "
+// const spaceIE = " 32 "
 
-//   num curLevel = DEFAULT_LEVEL;
-//   num curX = 1;
-//   num curY = 1;
-//   num curPiece;
-//   num skyline = BOARD_HEIGHT - 1;
-//   bool boardDrawn = false;
-//   bool gamePaused = false;
-//   bool gameStarted = false;
-//   bool sayingBye = false;
-//   Timer timer;
-//   num numLines = 0;
-//   num speed = SLOWEST_SPEED - FASTEST_SPEED * DEFAULT_LEVEL;
-//   List<ImageElement> squareImages;
-//   List<List<num>> board;
-//   List<num> xToErase;
-//   List<num> yToErase;
-//   List<num> dx;
-//   List<num> dy;
-//   List<num> dxPrime;
-//   List<num> dyPrime;
-//   List<List<num>> dxBank;
-//   List<List<num>> dyBank;
-//   Random random = new Random();
+// type struct Game {
+// 	curLevel int
+// 	curX int
+// 	curY int
+// 	curPiece int
+// 	skyline int
+// 	g.boardDrawn bool
+// 	gamePaused bool
+// 	gameStarted bool
+// 	sayingBye bool
+// 	timer *Timer
+// 	numLines int
+// 	speed int
+// 	squareImages []ImageElement
+// 	board [][]Int
+// 	xToErase []Int
+// 	yToErase []Int
+// 	dx []Int
+// 	dy []Int
+// 	dxPrime []Int
+// 	dyPrime []Int
+// 	dxBank [][]Int
+// 	dyBank [][]Int
+// 	random *Random
 
-//   // Keystroke processing
-//   bool isActiveLeft = false;
-//   bool isActiveRight = false;
-//   bool isActiveUp = false;
-//   bool isActiveDown = false;
-//   bool isActiveSpace = false;
-//   Timer timerLeft;
-//   Timer timerRight;
-//   Timer timerDown;
+// 	// Keystroke processing
+// 	isActiveLeft bool
+// 	isActiveRight bool
+// 	isActiveUp bool
+// 	isActiveDown bool
+// 	isActiveSpace bool
+// 	timerLeft *Timer
+// 	timerRight *Timer
+// 	timerDown *Timer
+// }
 
-//   Game() {
-//     squareImages = [];
-//     board = [];
-//     xToErase = [0, 0, 0, 0];
-//     yToErase = [0, 0, 0, 0];
-//     dx = [0, 0, 0, 0];
-//     dy = [0, 0, 0, 0];
-//     dxPrime = [0, 0, 0, 0];
-//     dyPrime = [0, 0, 0, 0];
-//     dxBank = [[], [0, 1, -1, 0], [0, 1, -1, -1], [0, 1, -1, 1], [0, -1, 1, 0], [0, 1, -1, 0], [0, 1, -1, -2], [0, 1, 1, 0]];
-//     dyBank = [[], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 1, 1], [0, 0, 1, 1], [0, 0, 0, 0], [0, 0, 1, 1]];
+// func (g *Game) NewGame() {
+// 	g.curLevel = defaultLevel
+// 	g.curX = 1
+// 	g.curY = 1
+// 	g.skyline = g.boardHeight - 1
+// 	g.boardDrawn = false
+// 	g.gamePaused = false
+// 	g.gameStarted = false
+// 	g.sayingBye = false
+// 	g.numLines = 0
+// 	g.speed = slowestSpeed - fastestSpeed * defaultLevel
+// 	g.random = new(Random)
 
-//     for (num i = 0; i < NUM_IMAGES; i++) {
-//       ImageElement img = new Element.tag("img");
-//       img.src = 'images/s${i}.png';
-//       squareImages.add(img);
-//     }
+// 	// Keystroke processing
+// 	g.isActiveLeft = false
+// 	g.isActiveRight = false
+// 	g.isActiveUp = false
+// 	g.isActiveDown = false
+// 	g.isActiveSpace = false
 
-//     for (num i = 0; i < BOARD_HEIGHT; i++) {
-//       board.add([]);
-//       for (num j = 0; j < BOARD_WIDTH; j++) {
-//         board[i].add(0);
-//       }
-//     }
+// 	g.squareImages = []
+// 	g.board = []
+// 	g.xToErase = [0, 0, 0, 0]
+// 	g.yToErase = [0, 0, 0, 0]
+// 	g.dx = [0, 0, 0, 0]
+// 	g.dy = [0, 0, 0, 0]
+// 	g.dxPrime = [0, 0, 0, 0]
+// 	g.dyPrime = [0, 0, 0, 0]
+// 	g.dxBank = [[], [0, 1, -1, 0], [0, 1, -1, -1], [0, 1, -1, 1], [0, -1, 1, 0], [0, 1, -1, 0], [0, 1, -1, -2], [0, 1, 1, 0]]
+// 	g.dyBank = [[], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 1, 1], [0, 0, 1, 1], [0, 0, 0, 0], [0, 0, 1, 1]]
 
-//     document.on.keyDown.add(onKeyDown);
-//     document.on.keyUp.add(onKeyUp);
+// 	for i := 0; i < numImages; i++ {
+// 		img := new(Element.tag("img"))
+// 		img.src = "images/s${i}.png"
+// 		g.squareImages.add(img)
+// 	}
 
-//     SelectElement levelSelect = query("#level-select");
-//     levelSelect.on.change.add((Event e) {
-//       onLevelSelectChange();
-//       levelSelect.blur();
-//     });
+// 	for i := 0; i < g.boardHeight; i++ {
+// 		g.board.add([])
+// 		for j := 0; j < g.boardWidth; j++ {
+// 			g.board[i].add(0)
+// 		}
+// 	}
 
-//     InputElement startButton = query("#start-button");
-//     InputElement pauseButton = query("#pause-button");
-//     startButton.on.click.add((event) => start());
-//     pauseButton.on.click.add((event) => pause());
-//   }
+// 	document.on.keyDown.add(g.onKeyDown)
+// 	document.on.keyUp.add(onKeyUp)
 
-//   void run() {
-//     drawBoard();
-//     resetGame();
-//   }
+// 	SelectElement levelSelect = query("#level-select")
+// 	levelSelect.on.change.add((Event e) {
+// 		g.onLevelSelectChange()
+// 		levelSelect.blur()
+// 	})
 
-//   void start() {
-//     if (sayingBye) {
-//       window.history.back();
-//       sayingBye = false;
-//     }
-//     if (gameStarted) {
-//       if (!boardDrawn) {
-//         return;
-//       }
-//       if (gamePaused) {
-//         resume();
-//       }
-//       return;
-//     }
-//     getPiece();
-//     drawPiece();
-//     gameStarted = true;
-//     gamePaused = false;
-//     InputElement numLinesField = query("#num-lines");
-//     numLinesField.value = numLines.toString();
-//     timer = new Timer(speed, (timer) => play());
-//   }
+// 	InputElement startButton = query("#start-button")
+// 	InputElement pauseButton = query("#pause-button")
+// 	startButton.on.click.add((event) => g.start())
+// 	pauseButton.on.click.add((event) => g.pause())
+// }
 
-//   void drawBoard() {
-//     DivElement boardDiv = query("#board-div");
-//     PreElement pre = new Element.tag("pre");
-//     boardDiv.nodes.add(pre);
-//     pre.classes.add("board");
-//     for (num i = 0; i < BOARD_HEIGHT; i++) {
-//       DivElement div = new Element.tag("div");
-//       pre.nodes.add(div);
-//       for (num j = 0; j < BOARD_WIDTH; j++) {
-//         ImageElement img = new Element.tag("img");
-//         div.nodes.add(img);
-//         img.id = "s-$i-$j";
-//         img.src = "images/s${board[i][j].abs()}.png";
-//         img.width = SQUARE_WIDTH;
-//         img.height = SQUARE_HEIGHT;
-//       }
-//       ImageElement rightMargin = new Element.tag("img");
-//       div.nodes.add(rightMargin);
-//       rightMargin.src = "images/g.png";
-//       rightMargin.width = 1;
-//       rightMargin.height = SQUARE_HEIGHT;
-//     }
-//     DivElement trailingDiv = new Element.tag("div");
-//     pre.nodes.add(trailingDiv);
-//     ImageElement trailingImg = new Element.tag("img");
-//     trailingDiv.nodes.add(trailingImg);
-//     trailingImg.src = "images/g.png";
-//     trailingImg.id = "board-trailing-img";
-//     trailingImg.width = BOARD_WIDTH * 16 + 1;
-//     trailingImg.height = 1;
-//     boardDrawn = true;
-//   }
+// func (g *Game) run() {
+// 	g.drawBoard()
+// 	g.resetGame()
+// }
 
-//   void resetGame() {
-//     for (num i = 0; i < BOARD_HEIGHT; i++) {
-//       for (num j = 0; j < BOARD_WIDTH; j++) {
-//         board[i][j] = 0;
-//         ImageElement img = query("#s-$i-$j");
-//         img.src = 'images/s0.png';
-//       }
-//     }
-//     gameStarted = false;
-//     gamePaused = false;
-//     numLines = 0;
-//     curLevel = 1;
-//     skyline = BOARD_HEIGHT - 1;
-//     InputElement numLinesField = query("#num-lines");
-//     numLinesField.value = numLines.toString();
-//     SelectElement levelSelect = query("#level-select");
-//     levelSelect.selectedIndex = 0;
+// func (g *Game) start() {
+// 	if g.sayingBye {
+// 		window.history.back()
+// 		g.sayingBye = false
+// 	}
+// 	if g.gameStarted {
+// 		if !g.boardDrawn {
+// 			return
+// 		}
+// 		if g.gamePaused {
+// 			g.resume()
+// 		}
+// 		return
+// 	}
+// 	g.getPiece()
+// 	g.drawPiece()
+// 	g.gameStarted = true
+// 	g.gamePaused = false
+// 	InputElement g.numLinesField = query("#num-lines")
+// 	g.numLinesField.value = g.numLines.toString()
+// 	g.timer = new(Timer(g.speed, (timer) => g.play()))
+// }
 
-//     // I shouldn't have to call this manually, but I do.
-//     // See: http://code.google.com/p/dart/issues/detail?id=2325&thanks=2325&ts=1332879888
-//     onLevelSelectChange();
-//   }
+// func (g *Game) drawBoard() {
+// 	DivElement g.boardDiv = query("#g.board-div")
+// 	pre := new(Element.tag("pre"))
+// 	g.boardDiv.nodes.add(pre)
+// 	pre.classes.add("g.board")
+// 	for i := 0; i < g.boardHeight; i++ {
+// 		div := new(Element.tag("div"))
+// 		pre.nodes.add(div)
+// 		for j := 0; j < g.boardWidth; j++ {
+// 			img := new(Element.tag("img"))
+// 			div.nodes.add(img)
+// 			img.id = "s-$i-$j"
+// 			img.src = "images/s${g.board[i][j].abs()}.png"
+// 			img.width = squareWidth
+// 			img.height = squareHeight
+// 		}
+// 		rightMargin := new(Element.tag("img"))
+// 		div.nodes.add(rightMargin)
+// 		rightMargin.src = "images/g.png"
+// 		rightMargin.width = 1
+// 		rightMargin.height = squareHeight
+// 	}
+// 	trailingDiv = new(Element.tag("div"))
+// 	pre.nodes.add(trailingDiv)
+// 	trailingImg = new(Element.tag("img"))
+// 	trailingDiv.nodes.add(trailingImg)
+// 	trailingImg.src = "images/g.png"
+// 	trailingImg.id = "g.board-trailing-img"
+// 	trailingImg.width = g.boardWidth * 16 + 1
+// 	trailingImg.height = 1
+// 	g.boardDrawn = true
+// }
 
-//   void play() {
-//     if (moveDown()) {
-//       timer = new Timer(speed, (timer) => play());
-//     } else {
-//       fillMatrix();
-//       removeLines();
-//       if (skyline > 0 && getPiece()) {
-//         timer = new Timer(speed, (timer) => play());
-//       } else {
-//         isActiveLeft = false;
-//         isActiveUp = false;
-//         isActiveRight = false;
-//         isActiveDown = false;
-//         window.alert('Game over!');
-//         resetGame();
-//       }
-//     }
-//   }
+// func (g *Game) resetGame() {
+// 	for i := 0; i < g.boardHeight; i++ {
+// 		for j := 0; j < g.boardWidth; j++ {
+// 			g.board[i][j] = 0
+// 			ImageElement img = query("#s-$i-$j")
+// 			img.src = "images/s0.png"
+// 		}
+// 	}
+// 	g.gameStarted = false
+// 	g.gamePaused = false
+// 	g.numLines = 0
+// 	g.curLevel = 1
+// 	g.skyline = g.boardHeight - 1
+// 	InputElement g.numLinesField = query("#num-lines")
+// 	g.numLinesField.value = g.numLines.toString()
+// 	SelectElement levelSelect = query("#level-select")
+// 	levelSelect.selectedIndex = 0
 
-//   void pause() {
-//     if (boardDrawn && gameStarted) {
-//       if (gamePaused) {
-//         resume();
-//         return;
-//       }
-//       timer.cancel();
-//       gamePaused = true;
-//     }
-//   }
+// 	// I shouldn"t have to call this manually, but I do.
+// 	// See: http://code.google.com/p/dart/issues/detail?id=2325&thanks=2325&ts=1332879888
+// 	g.onLevelSelectChange()
+// }
 
-//   void onKeyDown(KeyboardEvent event) {
-//     // I'm positive there are more modern ways to do keyboard event handling.
-//     String keyNN, keyIE;
-//     keyNN = ' ${event.keyCode} ';
-//     keyIE = ' ${event.keyCode} ';
+// func (g *Game) play() {
+// 	if g.moveDown() {
+// 		g.timer = new(Timer(g.speed, (timer) => g.play()))
+// 	} else {
+// 		g.fillMatrix()
+// 		g.removeLines()
+// 		if g.skyline > 0 && g.getPiece() {
+// 			g.timer = new(Timer(g.speed, (timer) => g.play()))
+// 		} else {
+// 			g.isActiveLeft = false
+// 			g.isActiveUp = false
+// 			g.isActiveRight = false
+// 			g.isActiveDown = false
+// 			window.alert("Game over!")
+// 			g.resetGame()
+// 		}
+// 	}
+// }
 
-//     // Only preventDefault if we can actually handle the keyDown event.  If we
-//     // capture all keyDown events, we break things like using ^r to reload the page.
+// func (g *Game) pause() {
+// 	if g.boardDrawn && g.gameStarted {
+// 		if g.gamePaused {
+// 			g.resume()
+// 			return
+// 		}
+// 		g.timer.cancel()
+// 		g.gamePaused = true
+// 	}
+// }
 
-//     if (!gameStarted || !boardDrawn || gamePaused) {
-//       return;
-//     }
+// func (g *Game) onKeyDown(event KeyboardEvent) {
+// 	// I"m positive there are more modern ways to do keyboard event handling.
+// 	String keyNN, keyIE
+// 	keyNN = " ${event.keyCode} "
+// 	keyIE = " ${event.keyCode} "
 
-//     if (LEFT_NN.indexOf(keyNN) != -1 || LEFT_IE.indexOf(keyIE) != -1) {
-//       if (!isActiveLeft) {
-//         isActiveLeft = true;
-//         isActiveRight = false;
-//         moveLeft();
-//         timerLeft = new Timer(INITIAL_DELAY, (timer) => slideLeft());
-//       }
-//     } else if (RIGHT_NN.indexOf(keyNN) != -1 || RIGHT_IE.indexOf(keyIE) != -1) {
-//       if (!isActiveRight) {
-//         isActiveRight = true;
-//         isActiveLeft = false;
-//         moveRight();
-//         timerRight = new Timer(INITIAL_DELAY, (timer) => slideRight());
-//       }
-//     } else if (UP_NN.indexOf(keyNN) != -1 || UP_IE.indexOf(keyIE) != -1) {
-//       if (!isActiveUp) {
-//         isActiveUp = true;
-//         isActiveDown = false;
-//         rotate();
-//       }
-//     } else if (SPACE_NN.indexOf(keyNN) != -1 || SPACE_IE.indexOf(keyIE) != -1) {
-//       if (!isActiveSpace) {
-//         isActiveSpace = true;
-//         isActiveDown = false;
-//         fall();
-//       }
-//     } else if (DOWN_NN.indexOf(keyNN) != -1 || DOWN_IE.indexOf(keyIE) != -1) {
-//       if (!isActiveDown) {
-//         isActiveDown = true;
-//         isActiveUp = false;
-//         moveDown();
-//         timerDown = new Timer(INITIAL_DELAY, (timer) => slideDown());
-//       }
-//     } else {
-//       return;
-//     }
-//     event.preventDefault();
-//   }
+// 	// Only preventDefault if we can actually handle the keyDown event.  If we
+// 	// capture all keyDown events, we break things like using ^r to reload the page.
 
-//   void onKeyUp(KeyboardEvent event) {
-//     // See comments in onKeyDown.
-//     var keyNN, keyIE;
-//     keyNN = ' ${event.keyCode} ';
-//     keyIE = ' ${event.keyCode} ';
-//     if (LEFT_NN.indexOf(keyNN) != -1 || LEFT_IE.indexOf(keyIE) != -1) {
-//       isActiveLeft = false;
-//       timerLeft.cancel();
-//     } else if (RIGHT_NN.indexOf(keyNN) != -1 || RIGHT_IE.indexOf(keyIE) != -1) {
-//       isActiveRight = false;
-//       timerRight.cancel();
-//     } else if (UP_NN.indexOf(keyNN) != -1 || UP_IE.indexOf(keyIE) != -1) {
-//       isActiveUp = false;
-//     } else if (DOWN_NN.indexOf(keyNN) != -1 || DOWN_IE.indexOf(keyIE) != -1) {
-//       isActiveDown = false;
-//       timerDown.cancel();
-//     } else if (SPACE_NN.indexOf(keyNN) != -1 || SPACE_IE.indexOf(keyIE) != -1) {
-//       isActiveSpace = false;
-//     } else {
-//       return;
-//     }
-//     event.preventDefault();
-//   }
+// 	if !g.gameStarted || !g.boardDrawn || g.gamePaused {
+// 		return
+// 	}
 
-//   void fillMatrix() {
-//     num k, x, y;
-//     for (k = 0; k < NUM_SQUARES; k++) {
-//       x = curX + dx[k];
-//       y = curY + dy[k];
-//       if (0 <= y && y < BOARD_HEIGHT && 0 <= x && x < BOARD_WIDTH) {
-//         board[y][x] = curPiece;
-//         if (y < skyline) {
-//           skyline = y;
-//         }
-//       }
-//     }
-//   }
+// 	if leftNN.indexOf(keyNN) != -1 || leftIE.indexOf(keyIE) != -1 {
+// 		if !g.isActiveLeft {
+// 			g.isActiveLeft = true
+// 			g.isActiveRight = false
+// 			g.moveLeft()
+// 			g.timerLeft = new(Timer(initialDelay, (timer) => g.slideLeft()))
+// 		}
+// 	} else if rightNN.indexOf(keyNN) != -1 || rightIE.indexOf(keyIE) != -1 {
+// 		if !g.isActiveRight {
+// 			g.isActiveRight = true
+// 			g.isActiveLeft = false
+// 			g.moveRight()
+// 			g.timerRight = new(Timer(initialDelay, (timer) => g.slideRight()))
+// 		}
+// 	} else if upNN.indexOf(keyNN) != -1 || upIE.indexOf(keyIE) != -1 {
+// 		if !g.isActiveUp {
+// 			g.isActiveUp = true
+// 			g.isActiveDown = false
+// 			g.rotate()
+// 		}
+// 	} else if spaceNN.indexOf(keyNN) != -1 || spaceIE.indexOf(keyIE) != -1 {
+// 		if !g.isActiveSpace {
+// 			g.isActiveSpace = true
+// 			g.isActiveDown = false
+// 			g.fall()
+// 		}
+// 	} else if downNN.indexOf(keyNN) != -1 || downIE.indexOf(keyIE) != -1 {
+// 		if !g.isActiveDown {
+// 			g.isActiveDown = true
+// 			g.isActiveUp = false
+// 			g.moveDown()
+// 			g.timerDown = new(Timer(initialDelay, (timer) => g.slideDown()))
+// 		}
+// 	} else {
+// 		return
+// 	}
+// 	event.preventDefault()
+// }
 
-//   void removeLines() {
-//     num i, j, k;
-//     bool gapFound;
-//     for (i = 0; i < BOARD_HEIGHT; i++) {
-//       gapFound = false;
-//       for (j = 0; j < BOARD_WIDTH; j++) {
-//         if (board[i][j] == 0) {
-//           gapFound = true;
-//           break;
-//         }
-//       }
-//       if (!gapFound) {
-//         for (k = i; k >= skyline; k--) {
-//           for (j = 0; j < BOARD_WIDTH; j++) {
-//             board[k][j] = board[k - 1][j];
-//             ImageElement img = query("#s-$k-$j");
-//             img.src = squareImages[board[k][j]].src;
-//           }
-//         }
-//         for (j = 0; j < BOARD_WIDTH; j++) {
-//           board[0][j] = 0;
-//           ImageElement img = query("#s-0-$j");
-//           img.src = squareImages[0].src;
-//         }
-//         numLines++;
-//         skyline++;
-//         InputElement numLinesField = query("#num-lines");
-//         numLinesField.value = numLines.toString();
-//         if (numLines % ROWS_PER_LEVEL == 0 && curLevel < MAX_LEVEL) {
-//           curLevel++;
-//         }
-//         speed = SLOWEST_SPEED - FASTEST_SPEED * curLevel;
-//         SelectElement levelSelect = query("#level-select");
-//         levelSelect.selectedIndex = curLevel - 1;
-//       }
-//     }
-//   }
+// func (g *Game) onKeyUp(event KeyboardEvent) {
+// 	// See comments in g.onKeyDown.
+// 	keyNN := " ${event.keyCode} "
+// 	keyIE := " ${event.keyCode} "
+// 	if leftNN.indexOf(keyNN) != -1 || leftIE.indexOf(keyIE) != -1 {
+// 		g.isActiveLeft = false
+// 		g.timerLeft.cancel()
+// 	} else if rightNN.indexOf(keyNN) != -1 || rightIE.indexOf(keyIE) != -1 {
+// 		g.isActiveRight = false
+// 		g.timerRight.cancel()
+// 	} else if upNN.indexOf(keyNN) != -1 || upIE.indexOf(keyIE) != -1 {
+// 		g.isActiveUp = false
+// 	} else if downNN.indexOf(keyNN) != -1 || downIE.indexOf(keyIE) != -1 {
+// 		g.isActiveDown = false
+// 		g.timerDown.cancel()
+// 	} else if spaceNN.indexOf(keyNN) != -1 || spaceIE.indexOf(keyIE) != -1 {
+// 		g.isActiveSpace = false
+// 	} else {
+// 		return
+// 	}
+// 	event.preventDefault()
+// }
 
-//   bool pieceFits(x, y) {
-//     num k, theX, theY;
-//     for (k = 0; k < NUM_SQUARES; k++) {
-//       theX = x + dxPrime[k];
-//       theY = y + dyPrime[k];
-//       if (theX < 0 || theX >= BOARD_WIDTH || theY >= BOARD_HEIGHT) {
-//         return false;
-//       }
-//       if (theY > -1 && board[theY][theX] > 0) {
-//         return false;
-//       }
-//     }
-//     return true;
-//   }
+// func (g *Game) fillMatrix() {
+// 	for k := 0; k < numSquares; k++ {
+// 		x := g.curX + g.dx[k]
+// 		y := g.curY + g.dy[k]
+// 		if 0 <= y && y < g.boardHeight && 0 <= x && x < g.boardWidth {
+// 			g.board[y][x] = g.curPiece
+// 			if y < g.skyline {
+// 				g.skyline = y
+// 			}
+// 		}
+// 	}
+// }
 
-//   void erasePiece() {
-//     num k, x, y;
-//     if (boardDrawn) {
-//       for (k = 0; k < NUM_SQUARES; k++) {
-//         x = curX + dx[k];
-//         y = curY + dy[k];
-//         if (0 <= y && y < BOARD_HEIGHT && 0 <= x && x < BOARD_WIDTH) {
-//           xToErase[k] = x;
-//           yToErase[k] = y;
-//           board[y][x] = 0;
-//         }
-//       }
-//     }
-//   }
+// func (g *Game) removeLines() {
+// 	for i := 0; i < g.boardHeight; i++ {
+// 		gapFound := false
+// 		for j := 0; j < g.boardWidth; j++ {
+// 			if g.board[i][j] == 0 {
+// 				gapFound = true
+// 				break
+// 			}
+// 		}
+// 		if !gapFound {
+// 			for k := i; k >= g.skyline; k-- {
+// 				for j = 0; j < g.boardWidth; j++ {
+// 					g.board[k][j] = g.board[k - 1][j]
+// 					ImageElement img = query("#s-$k-$j")
+// 					img.src = g.squareImages[g.board[k][j]].src
+// 				}
+// 			}
+// 			for j := 0; j < g.boardWidth; j++ {
+// 				g.board[0][j] = 0
+// 				ImageElement img = query("#s-0-$j")
+// 				img.src = g.squareImages[0].src
+// 			}
+// 			g.numLines++
+// 			g.skyline++
+// 			InputElement g.numLinesField = query("#num-lines")
+// 			g.numLinesField.value = g.numLines.toString()
+// 			if g.numLines % rowsPerLevel == 0 && g.curLevel < maxLevel {
+// 				g.curLevel++
+// 			}
+// 			g.speed = slowestSpeed - fastestSpeed * g.curLevel
+// 			SelectElement levelSelect = query("#level-select")
+// 			levelSelect.selectedIndex = g.curLevel - 1
+// 		}
+// 	}
+// }
 
-//   void drawPiece() {
-//     num k, x, y;
-//     if (boardDrawn) {
-//       for (k = 0; k < NUM_SQUARES; k++) {
-//         x = curX + dx[k];
-//         y = curY + dy[k];
-//         if (0 <= y && y < BOARD_HEIGHT && 0 <= x && x < BOARD_WIDTH && board[y][x] != -curPiece) {
-//           ImageElement img = query("#s-$y-$x");
-//           img.src = squareImages[curPiece].src;
-//           board[y][x] = -curPiece;
-//         }
-//         x = xToErase[k];
-//         y = yToErase[k];
-//         if (board[y][x] == 0) {
-//           ImageElement img = query("#s-$y-$x");
-//           img.src = squareImages[0].src;
-//         }
-//       }
-//     }
-//   }
+// func (g *Game) pieceFits(x, y) bool {
+// 	for k := 0; k < numSquares; k++ {
+// 		theX := x + g.dxPrime[k]
+// 		theY := y + g.dyPrime[k]
+// 		if theX < 0 || theX >= g.boardWidth || theY >= g.boardHeight {
+// 			return false
+// 		}
+// 		if theY > -1 && g.board[theY][theX] > 0 {
+// 			return false
+// 		}
+// 	}
+// 	return true
+// }
 
-//   bool moveDown() {
-//     num k;
-//     for (k = 0; k < NUM_SQUARES; k++) {
-//       dxPrime[k] = dx[k];
-//       dyPrime[k] = dy[k];
-//     }
-//     if (pieceFits(curX, curY + 1)) {
-//       erasePiece();
-//       curY++;
-//       drawPiece();
-//       return true;
-//     }
-//     return false;
-//   }
+// func (g *Game) erasePiece() {
+// 	if g.boardDrawn {
+// 		for k := 0; k < numSquares; k++ {
+// 			x := g.curX + g.dx[k]
+// 			y := g.curY + g.dy[k]
+// 			if 0 <= y && y < g.boardHeight && 0 <= x && x < g.boardWidth {
+// 				g.xToErase[k] = x
+// 				g.yToErase[k] = y
+// 				g.board[y][x] = 0
+// 			}
+// 		}
+// 	}
+// }
 
-//   void moveLeft() {
-//     num k;
-//     for (k = 0; k < NUM_SQUARES; k++) {
-//       dxPrime[k] = dx[k];
-//       dyPrime[k] = dy[k];
-//     }
-//     if (pieceFits(curX - 1, curY)) {
-//       erasePiece();
-//       curX--;
-//       drawPiece();
-//     }
-//   }
+// func (g *Game) drawPiece() {
+// 	if g.boardDrawn {
+// 		for k := 0; k < numSquares; k++ {
+// 			x = g.curX + g.dx[k]
+// 			y = g.curY + g.dy[k]
+// 			if 0 <= y && y < g.boardHeight && 0 <= x && x < g.boardWidth && g.board[y][x] != -g.curPiece {
+// 				ImageElement img = query("#s-$y-$x")
+// 				img.src = g.squareImages[g.curPiece].src
+// 				g.board[y][x] = -g.curPiece
+// 			}
+// 			x := g.xToErase[k]
+// 			y := g.yToErase[k]
+// 			if g.board[y][x] == 0 {
+// 				ImageElement img = query("#s-$y-$x")
+// 				img.src = g.squareImages[0].src
+// 			}
+// 		}
+// 	}
+// }
 
-//   void moveRight() {
-//     num k;
-//     for (k = 0; k < NUM_SQUARES; k++) {
-//       dxPrime[k] = dx[k];
-//       dyPrime[k] = dy[k];
-//     }
-//     if (pieceFits(curX + 1, curY)) {
-//       erasePiece();
-//       curX++;
-//       drawPiece();
-//     }
-//   }
+// func (g *Game) moveDown() {
+// 	for k := 0; k < numSquares; k++ {
+// 		g.dxPrime[k] = g.dx[k]
+// 		g.dyPrime[k] = g.dy[k]
+// 	}
+// 	if g.pieceFits(g.curX, g.curY + 1) {
+// 		g.erasePiece()
+// 		g.curY++
+// 		g.drawPiece()
+// 		return true
+// 	}
+// 	return false
+// }
 
-//   bool getPiece() {
-//     num k;
-//     curPiece = 1 + random.nextInt(NUM_TYPES);
-//     curX = 5;
-//     curY = 0;
-//     for (k = 0; k < NUM_SQUARES; k++) {
-//       dx[k] = dxBank[curPiece][k];
-//       dy[k] = dyBank[curPiece][k];
-//     }
-//     for (k = 0; k < NUM_SQUARES; k++) {
-//       dxPrime[k] = dx[k];
-//       dyPrime[k] = dy[k];
-//     }
-//     if (pieceFits(curX, curY)) {
-//       drawPiece();
-//       return true;
-//     }
-//     return false;
-//   }
+// func (g *Game) moveLeft() {
+// 	for k := 0; k < numSquares; k++ {
+// 		g.dxPrime[k] = g.dx[k]
+// 		g.dyPrime[k] = g.dy[k]
+// 	}
+// 	if g.pieceFits(g.curX - 1, g.curY) {
+// 		g.erasePiece()
+// 		g.curX--
+// 		g.drawPiece()
+// 	}
+// }
 
-//   void resume() {
-//     if (boardDrawn && gameStarted && gamePaused) {
-//       play();
-//       gamePaused = false;
-//     }
-//   }
+// func (g *Game) moveRight() {
+// 	for k := 0; k < numSquares; k++ {
+// 		g.dxPrime[k] = g.dx[k]
+// 		g.dyPrime[k] = g.dy[k]
+// 	}
+// 	if g.pieceFits(g.curX + 1, g.curY) {
+// 		g.erasePiece()
+// 		g.curX++
+// 		g.drawPiece()
+// 	}
+// }
 
-//   void onLevelSelectChange() {
-//     SelectElement levelSelect = query("#level-select");
-//     OptionElement selectedOption = levelSelect.options[levelSelect.selectedIndex];
-//     curLevel = int.parse(selectedOption.value);
-//     speed = SLOWEST_SPEED - FASTEST_SPEED * curLevel;
-//   }
+// func (g *Game) getPiece() bool {
+// 	g.curPiece = 1 + g.random.nextInt(numTypes)
+// 	g.curX = 5
+// 	g.curY = 0
+// 	for k := 0; k < numSquares; k++ {
+// 		g.dx[k] = g.dxBank[g.curPiece][k]
+// 		g.dy[k] = g.dyBank[g.curPiece][k]
+// 	}
+// 	for k = 0; k < numSquares; k++ {
+// 		g.dxPrime[k] = g.dx[k]
+// 		g.dyPrime[k] = g.dy[k]
+// 	}
+// 	if g.pieceFits(g.curX, g.curY) {
+// 		g.drawPiece()
+// 		return true
+// 	}
+// 	return false
+// }
 
-//   void rotate() {
-//     num k;
-//     for (k = 0; k < NUM_SQUARES; k++) {
-//       dxPrime[k] = dy[k];
-//       dyPrime[k] = -dx[k];
-//     }
-//     if (pieceFits(curX, curY)) {
-//       erasePiece();
-//       for (k = 0; k < NUM_SQUARES; k++) {
-//         dx[k] = dxPrime[k];
-//         dy[k] = dyPrime[k];
-//       }
-//       drawPiece();
-//     }
-//   }
+// func (g *Game) resume() {
+// 	if g.boardDrawn && g.gameStarted && g.gamePaused {
+// 		g.play()
+// 		g.gamePaused = false
+// 	}
+// }
 
-//   void fall() {
-//     num k;
-//     for (k = 0; k < NUM_SQUARES; k++) {
-//       dxPrime[k] = dx[k];
-//       dyPrime[k] = dy[k];
-//     }
-//     if (!pieceFits(curX, curY + 1)) {
-//       return;
-//     }
-//     timer.cancel();
-//     erasePiece();
-//     while (pieceFits(curX, curY + 1)) {
-//       curY++;
-//     }
-//     drawPiece();
-//     timer = new Timer(speed, (timer) => play());
-//   }
+// func (g *Game) onLevelSelectChange() {
+// 	SelectElement levelSelect = query("#level-select")
+// 	OptionElement selectedOption = levelSelect.options[levelSelect.selectedIndex]
+// 	g.curLevel = int.parse(selectedOption.value)
+// 	g.speed = slowestSpeed - fastestSpeed * g.curLevel
+// }
 
-//   void slideLeft() {
-//     if (isActiveLeft) {
-//       moveLeft();
-//       timerLeft = new Timer(REPEAT_DELAY, (timer) => slideLeft());
-//     }
-//   }
+// func (g *Game) rotate() {
+// 	for k := 0; k < numSquares; k++ {
+// 		g.dxPrime[k] = g.dy[k]
+// 		g.dyPrime[k] = -g.dx[k]
+// 	}
+// 	if g.pieceFits(g.curX, g.curY) {
+// 		g.erasePiece()
+// 		for k = 0; k < numSquares; k++ {
+// 			g.dx[k] = g.dxPrime[k]
+// 			g.dy[k] = g.dyPrime[k]
+// 		}
+// 		g.drawPiece()
+// 	}
+// }
 
-//   void slideRight() {
-//     if (isActiveRight) {
-//       moveRight();
-//       timerRight = new Timer(REPEAT_DELAY, (timer) => slideRight());
-//     }
-//   }
+// func (g *Game) fall() {
+// 	for k := 0; k < numSquares; k++ {
+// 		g.dxPrime[k] = g.dx[k]
+// 		g.dyPrime[k] = g.dy[k]
+// 	}
+// 	if !g.pieceFits(g.curX, g.curY + 1) {
+// 		return
+// 	}
+// 	g.timer.cancel()
+// 	g.erasePiece()
+// 	while g.pieceFits(g.curX, g.curY + 1) {
+// 		g.curY++
+// 	}
+// 	g.drawPiece()
+// 	g.timer = new(Timer(g.speed, (timer) => g.play()))
+// }
 
-//   void slideDown() {
-//     if (isActiveDown) {
-//       moveDown();
-//       timerDown = new Timer(REPEAT_DELAY, (timer) => slideDown());
-//     }
-//   }
+// func (g *Game) slideLeft() {
+// 	if g.isActiveLeft {
+// 		g.moveLeft()
+// 		g.timerLeft = new(Timer(repeatDelay, (timer) => g.slideLeft()))
+// 	}
+// }
 
-//   void write(String message) {
-//     ParagraphElement p = new Element.tag('p');
-//     p.text = message;
-//     document.body.nodes.add(p);
-//   }
+// func (g *Game) slideRight() {
+// 	if g.isActiveRight {
+// 		g.moveRight()
+// 		g.timerRight = new(Timer(repeatDelay, (timer) => g.slideRight()))
+// 	}
+// }
 
+// func (g *Game) slideDown() {
+// 	if g.isActiveDown {
+// 		g.moveDown()
+// 		g.timerDown = new(Timer(repeatDelay, (timer) => g.slideDown()))
+// 	}
+// }
+
+// func (g *Game) write(String message) {
+// 	p = new(Element.tag("p"))
+// 	p.text = message
+// 	document.body.nodes.add(p)
 // }
 
 // void main() {
-//   new Game().run();
+// 	new(Game).run()
 // }
