@@ -10,6 +10,7 @@ package main
 
 import (
 	"fmt"
+	//// 	"math/rand"
 	"strings"
 	"time"
 
@@ -20,6 +21,7 @@ import (
 const backgroundColor = termbox.ColorBlue
 const boardColor = termbox.ColorBlack
 const instructionsColor = termbox.ColorWhite
+
 var pieceColors = []termbox.Attribute{
 	termbox.ColorBlack,
 	termbox.ColorRed,
@@ -49,6 +51,7 @@ const instructionsStartY = boardStartY
 
 // Text in the UI
 const title = "Tetris Written in Go"
+
 var instructions = []string{
 	"Goal: Fill in 5 lines!",
 	"",
@@ -78,37 +81,34 @@ const initialDelay = 200
 const repeatDelay = 20
 
 type Game struct {
-	curLevel int
-	curX int
-	curY int
-	curPiece int
-	skyline int
-	gamePaused bool
+	curLevel    int
+	curX        int
+	curY        int
+	curPiece    int
+	skyline     int
+	gamePaused  bool
 	gameStarted bool
-	timer *time.Timer
-	numLines int
-	speed int
-//// 	squareImages []ImageElement
-//// 	board [][]Int
-//// 	xToErase []Int
-//// 	yToErase []Int
-//// 	dx []Int
-//// 	dy []Int
-//// 	dxPrime []Int
-//// 	dyPrime []Int
-//// 	dxBank [][]Int
-//// 	dyBank [][]Int
-//// 	random *Random
-//// 
-//// 	// Keystroke processing
-//// 	isActiveLeft bool
-//// 	isActiveRight bool
-//// 	isActiveUp bool
-//// 	isActiveDown bool
-//// 	isActiveSpace bool
-//// 	timerLeft *Timer
-//// 	timerRight *Timer
-//// 	timerDown *Timer
+	timer       *time.Timer
+	numLines    int
+	speed       int
+	board       [][]int
+	xToErase    []int
+	yToErase    []int
+	dx          []int
+	dy          []int
+	dxPrime     []int
+	dyPrime     []int
+	dxBank      [][]int
+	dyBank      [][]int
+
+	// Keystroke processing
+	isActiveLeft  bool
+	isActiveRight bool
+	isActiveUp    bool
+	isActiveDown  bool
+	timerLeft     *time.Timer
+	timerRight    *time.Timer
+	timerDown     *time.Timer
 }
 
 func tbprint(x, y int, fg, bg termbox.Attribute, msg string) {
@@ -176,16 +176,14 @@ loop:
 //// 	g.gameStarted = false
 //// 	g.numLines = 0
 //// 	g.speed = slowestSpeed - fastestSpeed * defaultLevel
-//// 	g.random = new(Random)
-//// 
+////
 //// 	// Keystroke processing
 //// 	g.isActiveLeft = false
 //// 	g.isActiveRight = false
 //// 	g.isActiveUp = false
 //// 	g.isActiveDown = false
 //// 	g.isActiveSpace = false
-//// 
-//// 	g.squareImages = []
+////
 //// 	g.board = []
 //// 	g.xToErase = [0, 0, 0, 0]
 //// 	g.yToErase = [0, 0, 0, 0]
@@ -195,40 +193,34 @@ loop:
 //// 	g.dyPrime = [0, 0, 0, 0]
 //// 	g.dxBank = [[], [0, 1, -1, 0], [0, 1, -1, -1], [0, 1, -1, 1], [0, -1, 1, 0], [0, 1, -1, 0], [0, 1, -1, -2], [0, 1, 1, 0]]
 //// 	g.dyBank = [[], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 1, 1], [0, 0, 1, 1], [0, 0, 0, 0], [0, 0, 1, 1]]
-//// 
-//// 	for i := 0; i < len(pieceColors); i++ {
-//// 		img := new(Element.tag("img"))
-//// 		img.src = "images/s${i}.png"
-//// 		g.squareImages.add(img)
-//// 	}
-//// 
+////
 //// 	for i := 0; i < g.boardHeight; i++ {
 //// 		g.board.add([])
 //// 		for j := 0; j < g.boardWidth; j++ {
 //// 			g.board[i].add(0)
 //// 		}
 //// 	}
-//// 
+////
 //// 	document.on.keyDown.add(g.onKeyDown)
 //// 	document.on.keyUp.add(onKeyUp)
-//// 
+////
 //// 	SelectElement levelSelect = query("#level-select")
 //// 	levelSelect.on.change.add((Event e) {
 //// 		g.onLevelSelectChange()
 //// 		levelSelect.blur()
 //// 	})
-//// 
+////
 //// 	InputElement startButton = query("#start-button")
 //// 	InputElement pauseButton = query("#pause-button")
 //// 	startButton.on.click.add((event) => g.start())
 //// 	pauseButton.on.click.add((event) => g.pause())
 //// }
-//// 
+////
 //// func (g *Game) run() {
 //// 	g.drawBoard()
 //// 	g.resetGame()
 //// }
-//// 
+////
 //// func (g *Game) start() {
 //// 	if g.gameStarted {
 //// 		if g.gamePaused {
@@ -244,7 +236,7 @@ loop:
 //// 	g.numLinesField.value = g.numLines.toString()
 //// 	g.timer = new(Timer(g.speed, (timer) => g.play()))
 //// }
-//// 
+////
 //// func (g *Game) drawBoard() {
 //// 	DivElement g.boardDiv = query("#g.board-div")
 //// 	pre := new(Element.tag("pre"))
@@ -273,7 +265,7 @@ loop:
 //// 	trailingImg.width = g.boardWidth * 16 + 1
 //// 	trailingImg.height = 1
 //// }
-//// 
+////
 //// func (g *Game) resetGame() {
 //// 	for i := 0; i < g.boardHeight; i++ {
 //// 		for j := 0; j < g.boardWidth; j++ {
@@ -291,12 +283,12 @@ loop:
 //// 	g.numLinesField.value = g.numLines.toString()
 //// 	SelectElement levelSelect = query("#level-select")
 //// 	levelSelect.selectedIndex = 0
-//// 
+////
 //// 	// I shouldn"t have to call this manually, but I do.
 //// 	// See: http://code.google.com/p/dart/issues/detail?id=2325&thanks=2325&ts=1332879888
 //// 	g.onLevelSelectChange()
 //// }
-//// 
+////
 //// func (g *Game) play() {
 //// 	if g.moveDown() {
 //// 		g.timer = new(Timer(g.speed, (timer) => g.play()))
@@ -315,7 +307,7 @@ loop:
 //// 		}
 //// 	}
 //// }
-//// 
+////
 //// func (g *Game) pause() {
 //// 	if g.gameStarted {
 //// 		if g.gamePaused {
@@ -326,20 +318,20 @@ loop:
 //// 		g.gamePaused = true
 //// 	}
 //// }
-//// 
+////
 //// func (g *Game) onKeyDown(event KeyboardEvent) {
 //// 	// I"m positive there are more modern ways to do keyboard event handling.
 //// 	String keyNN, keyIE
 //// 	keyNN = " ${event.keyCode} "
 //// 	keyIE = " ${event.keyCode} "
-//// 
+////
 //// 	// Only preventDefault if we can actually handle the keyDown event.  If we
 //// 	// capture all keyDown events, we break things like using ^r to reload the page.
-//// 
+////
 //// 	if !g.gameStarted || g.gamePaused {
 //// 		return
 //// 	}
-//// 
+////
 //// 	if leftNN.indexOf(keyNN) != -1 || leftIE.indexOf(keyIE) != -1 {
 //// 		if !g.isActiveLeft {
 //// 			g.isActiveLeft = true
@@ -378,7 +370,7 @@ loop:
 //// 	}
 //// 	event.preventDefault()
 //// }
-//// 
+////
 //// func (g *Game) onKeyUp(event KeyboardEvent) {
 //// 	// See comments in g.onKeyDown.
 //// 	keyNN := " ${event.keyCode} "
@@ -401,7 +393,7 @@ loop:
 //// 	}
 //// 	event.preventDefault()
 //// }
-//// 
+////
 //// func (g *Game) fillMatrix() {
 //// 	for k := 0; k < numSquares; k++ {
 //// 		x := g.curX + g.dx[k]
@@ -414,7 +406,7 @@ loop:
 //// 		}
 //// 	}
 //// }
-//// 
+////
 //// func (g *Game) removeLines() {
 //// 	for i := 0; i < g.boardHeight; i++ {
 //// 		gapFound := false
@@ -429,13 +421,13 @@ loop:
 //// 				for j = 0; j < g.boardWidth; j++ {
 //// 					g.board[k][j] = g.board[k - 1][j]
 //// 					ImageElement img = query("#s-$k-$j")
-//// 					img.src = g.squareImages[g.board[k][j]].src
+//// 					img.src = pieceColors[g.board[k][j]].src
 //// 				}
 //// 			}
 //// 			for j := 0; j < g.boardWidth; j++ {
 //// 				g.board[0][j] = 0
 //// 				ImageElement img = query("#s-0-$j")
-//// 				img.src = g.squareImages[0].src
+//// 				img.src = pieceColors[0].src
 //// 			}
 //// 			g.numLines++
 //// 			g.skyline++
@@ -450,7 +442,7 @@ loop:
 //// 		}
 //// 	}
 //// }
-//// 
+////
 //// func (g *Game) pieceFits(x, y) bool {
 //// 	for k := 0; k < numSquares; k++ {
 //// 		theX := x + g.dxPrime[k]
@@ -464,7 +456,7 @@ loop:
 //// 	}
 //// 	return true
 //// }
-//// 
+////
 //// func (g *Game) erasePiece() {
 //// 	for k := 0; k < numSquares; k++ {
 //// 		x := g.curX + g.dx[k]
@@ -476,25 +468,25 @@ loop:
 //// 		}
 //// 	}
 //// }
-//// 
+////
 //// func (g *Game) drawPiece() {
 //// 	for k := 0; k < numSquares; k++ {
 //// 		x = g.curX + g.dx[k]
 //// 		y = g.curY + g.dy[k]
 //// 		if 0 <= y && y < g.boardHeight && 0 <= x && x < g.boardWidth && g.board[y][x] != -g.curPiece {
 //// 			ImageElement img = query("#s-$y-$x")
-//// 			img.src = g.squareImages[g.curPiece].src
+//// 			img.src = pieceColors[g.curPiece].src
 //// 			g.board[y][x] = -g.curPiece
 //// 		}
 //// 		x := g.xToErase[k]
 //// 		y := g.yToErase[k]
 //// 		if g.board[y][x] == 0 {
 //// 			ImageElement img = query("#s-$y-$x")
-//// 			img.src = g.squareImages[0].src
+//// 			img.src = pieceColors[0].src
 //// 		}
 //// 	}
 //// }
-//// 
+////
 //// func (g *Game) moveDown() {
 //// 	for k := 0; k < numSquares; k++ {
 //// 		g.dxPrime[k] = g.dx[k]
@@ -508,7 +500,7 @@ loop:
 //// 	}
 //// 	return false
 //// }
-//// 
+////
 //// func (g *Game) moveLeft() {
 //// 	for k := 0; k < numSquares; k++ {
 //// 		g.dxPrime[k] = g.dx[k]
@@ -520,7 +512,7 @@ loop:
 //// 		g.drawPiece()
 //// 	}
 //// }
-//// 
+////
 //// func (g *Game) moveRight() {
 //// 	for k := 0; k < numSquares; k++ {
 //// 		g.dxPrime[k] = g.dx[k]
@@ -532,9 +524,9 @@ loop:
 //// 		g.drawPiece()
 //// 	}
 //// }
-//// 
+////
 //// func (g *Game) getPiece() bool {
-//// 	g.curPiece = 1 + g.random.nextInt(numTypes)
+//// 	g.curPiece = 1 + rand.Int()%numTypes
 //// 	g.curX = 5
 //// 	g.curY = 0
 //// 	for k := 0; k < numSquares; k++ {
@@ -551,21 +543,21 @@ loop:
 //// 	}
 //// 	return false
 //// }
-//// 
+////
 //// func (g *Game) resume() {
 //// 	if g.gameStarted && g.gamePaused {
 //// 		g.play()
 //// 		g.gamePaused = false
 //// 	}
 //// }
-//// 
+////
 //// func (g *Game) onLevelSelectChange() {
 //// 	SelectElement levelSelect = query("#level-select")
 //// 	OptionElement selectedOption = levelSelect.options[levelSelect.selectedIndex]
 //// 	g.curLevel = int.parse(selectedOption.value)
 //// 	g.speed = slowestSpeed - fastestSpeed * g.curLevel
 //// }
-//// 
+////
 //// func (g *Game) rotate() {
 //// 	for k := 0; k < numSquares; k++ {
 //// 		g.dxPrime[k] = g.dy[k]
@@ -580,7 +572,7 @@ loop:
 //// 		g.drawPiece()
 //// 	}
 //// }
-//// 
+////
 //// func (g *Game) fall() {
 //// 	for k := 0; k < numSquares; k++ {
 //// 		g.dxPrime[k] = g.dx[k]
@@ -597,34 +589,34 @@ loop:
 //// 	g.drawPiece()
 //// 	g.timer = new(Timer(g.speed, (timer) => g.play()))
 //// }
-//// 
+////
 //// func (g *Game) slideLeft() {
 //// 	if g.isActiveLeft {
 //// 		g.moveLeft()
 //// 		g.timerLeft = new(Timer(repeatDelay, (timer) => g.slideLeft()))
 //// 	}
 //// }
-//// 
+////
 //// func (g *Game) slideRight() {
 //// 	if g.isActiveRight {
 //// 		g.moveRight()
 //// 		g.timerRight = new(Timer(repeatDelay, (timer) => g.slideRight()))
 //// 	}
 //// }
-//// 
+////
 //// func (g *Game) slideDown() {
 //// 	if g.isActiveDown {
 //// 		g.moveDown()
 //// 		g.timerDown = new(Timer(repeatDelay, (timer) => g.slideDown()))
 //// 	}
 //// }
-//// 
+////
 //// func (g *Game) write(String message) {
 //// 	p = new(Element.tag("p"))
 //// 	p.text = message
 //// 	document.body.nodes.add(p)
 //// }
-//// 
+////
 //// void main() {
 //// 	new(Game).run()
-//// }//// 
+//// }////
