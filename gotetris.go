@@ -17,8 +17,19 @@ import (
 )
 
 // Colors
-const backgroundColor = termbox.ColorBlack
+const backgroundColor = termbox.ColorBlue
+const boardColor = termbox.ColorBlack
 const instructionsColor = termbox.ColorWhite
+var pieceColors = []termbox.Attribute{
+	termbox.ColorBlack,
+	termbox.ColorRed,
+	termbox.ColorGreen,
+	termbox.ColorYellow,
+	termbox.ColorBlue,
+	termbox.ColorMagenta,
+	termbox.ColorCyan,
+	termbox.ColorWhite,
+}
 
 // Layout
 const defaultMarginWidth = 2
@@ -56,7 +67,6 @@ var instructions = []string{
 // Game play
 const numSquares = 4
 const numTypes = 7
-const numPieceColors = 8
 const defaultLevel = 1
 const maxLevel = 10
 const rowsPerLevel = 5
@@ -66,6 +76,40 @@ const fastestSpeed = 60
 // Keystroke processing
 const initialDelay = 200
 const repeatDelay = 20
+
+type Game struct {
+	curLevel int
+	curX int
+	curY int
+	curPiece int
+	skyline int
+	gamePaused bool
+	gameStarted bool
+	timer *time.Timer
+	numLines int
+	speed int
+//// 	squareImages []ImageElement
+//// 	board [][]Int
+//// 	xToErase []Int
+//// 	yToErase []Int
+//// 	dx []Int
+//// 	dy []Int
+//// 	dxPrime []Int
+//// 	dyPrime []Int
+//// 	dxBank [][]Int
+//// 	dyBank [][]Int
+//// 	random *Random
+//// 
+//// 	// Keystroke processing
+//// 	isActiveLeft bool
+//// 	isActiveRight bool
+//// 	isActiveUp bool
+//// 	isActiveDown bool
+//// 	isActiveSpace bool
+//// 	timerLeft *Timer
+//// 	timerRight *Timer
+//// 	timerDown *Timer
+}
 
 func tbprint(x, y int, fg, bg termbox.Attribute, msg string) {
 	for _, c := range msg {
@@ -79,7 +123,7 @@ func draw() {
 	tbprint(titleStartX, titleStartY, instructionsColor, backgroundColor, title)
 	for y := boardStartY; y < boardEndY; y++ {
 		for x := boardStartX; x < boardEndX; x++ {
-			termbox.SetCell(x, y, ' ', termbox.ColorGreen, termbox.ColorGreen)
+			termbox.SetCell(x, y, ' ', boardColor, boardColor)
 		}
 	}
 	for i, instruction := range instructions {
@@ -123,51 +167,13 @@ loop:
 	}
 }
 
-//// type struct Game {
-//// 	curLevel int
-//// 	curX int
-//// 	curY int
-//// 	curPiece int
-//// 	skyline int
-//// 	g.boardDrawn bool
-//// 	gamePaused bool
-//// 	gameStarted bool
-//// 	sayingBye bool
-//// 	timer *Timer
-//// 	numLines int
-//// 	speed int
-//// 	squareImages []ImageElement
-//// 	board [][]Int
-//// 	xToErase []Int
-//// 	yToErase []Int
-//// 	dx []Int
-//// 	dy []Int
-//// 	dxPrime []Int
-//// 	dyPrime []Int
-//// 	dxBank [][]Int
-//// 	dyBank [][]Int
-//// 	random *Random
-//// 
-//// 	// Keystroke processing
-//// 	isActiveLeft bool
-//// 	isActiveRight bool
-//// 	isActiveUp bool
-//// 	isActiveDown bool
-//// 	isActiveSpace bool
-//// 	timerLeft *Timer
-//// 	timerRight *Timer
-//// 	timerDown *Timer
-//// }
-//// 
 //// func (g *Game) NewGame() {
 //// 	g.curLevel = defaultLevel
 //// 	g.curX = 1
 //// 	g.curY = 1
 //// 	g.skyline = g.boardHeight - 1
-//// 	g.boardDrawn = false
 //// 	g.gamePaused = false
 //// 	g.gameStarted = false
-//// 	g.sayingBye = false
 //// 	g.numLines = 0
 //// 	g.speed = slowestSpeed - fastestSpeed * defaultLevel
 //// 	g.random = new(Random)
@@ -190,7 +196,7 @@ loop:
 //// 	g.dxBank = [[], [0, 1, -1, 0], [0, 1, -1, -1], [0, 1, -1, 1], [0, -1, 1, 0], [0, 1, -1, 0], [0, 1, -1, -2], [0, 1, 1, 0]]
 //// 	g.dyBank = [[], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 1, 1], [0, 0, 1, 1], [0, 0, 0, 0], [0, 0, 1, 1]]
 //// 
-//// 	for i := 0; i < numPieceColors; i++ {
+//// 	for i := 0; i < len(pieceColors); i++ {
 //// 		img := new(Element.tag("img"))
 //// 		img.src = "images/s${i}.png"
 //// 		g.squareImages.add(img)
@@ -224,14 +230,7 @@ loop:
 //// }
 //// 
 //// func (g *Game) start() {
-//// 	if g.sayingBye {
-//// 		window.history.back()
-//// 		g.sayingBye = false
-//// 	}
 //// 	if g.gameStarted {
-//// 		if !g.boardDrawn {
-//// 			return
-//// 		}
 //// 		if g.gamePaused {
 //// 			g.resume()
 //// 		}
@@ -273,7 +272,6 @@ loop:
 //// 	trailingImg.id = "g.board-trailing-img"
 //// 	trailingImg.width = g.boardWidth * 16 + 1
 //// 	trailingImg.height = 1
-//// 	g.boardDrawn = true
 //// }
 //// 
 //// func (g *Game) resetGame() {
@@ -319,7 +317,7 @@ loop:
 //// }
 //// 
 //// func (g *Game) pause() {
-//// 	if g.boardDrawn && g.gameStarted {
+//// 	if g.gameStarted {
 //// 		if g.gamePaused {
 //// 			g.resume()
 //// 			return
@@ -338,7 +336,7 @@ loop:
 //// 	// Only preventDefault if we can actually handle the keyDown event.  If we
 //// 	// capture all keyDown events, we break things like using ^r to reload the page.
 //// 
-//// 	if !g.gameStarted || !g.boardDrawn || g.gamePaused {
+//// 	if !g.gameStarted || g.gamePaused {
 //// 		return
 //// 	}
 //// 
@@ -468,35 +466,31 @@ loop:
 //// }
 //// 
 //// func (g *Game) erasePiece() {
-//// 	if g.boardDrawn {
-//// 		for k := 0; k < numSquares; k++ {
-//// 			x := g.curX + g.dx[k]
-//// 			y := g.curY + g.dy[k]
-//// 			if 0 <= y && y < g.boardHeight && 0 <= x && x < g.boardWidth {
-//// 				g.xToErase[k] = x
-//// 				g.yToErase[k] = y
-//// 				g.board[y][x] = 0
-//// 			}
+//// 	for k := 0; k < numSquares; k++ {
+//// 		x := g.curX + g.dx[k]
+//// 		y := g.curY + g.dy[k]
+//// 		if 0 <= y && y < g.boardHeight && 0 <= x && x < g.boardWidth {
+//// 			g.xToErase[k] = x
+//// 			g.yToErase[k] = y
+//// 			g.board[y][x] = 0
 //// 		}
 //// 	}
 //// }
 //// 
 //// func (g *Game) drawPiece() {
-//// 	if g.boardDrawn {
-//// 		for k := 0; k < numSquares; k++ {
-//// 			x = g.curX + g.dx[k]
-//// 			y = g.curY + g.dy[k]
-//// 			if 0 <= y && y < g.boardHeight && 0 <= x && x < g.boardWidth && g.board[y][x] != -g.curPiece {
-//// 				ImageElement img = query("#s-$y-$x")
-//// 				img.src = g.squareImages[g.curPiece].src
-//// 				g.board[y][x] = -g.curPiece
-//// 			}
-//// 			x := g.xToErase[k]
-//// 			y := g.yToErase[k]
-//// 			if g.board[y][x] == 0 {
-//// 				ImageElement img = query("#s-$y-$x")
-//// 				img.src = g.squareImages[0].src
-//// 			}
+//// 	for k := 0; k < numSquares; k++ {
+//// 		x = g.curX + g.dx[k]
+//// 		y = g.curY + g.dy[k]
+//// 		if 0 <= y && y < g.boardHeight && 0 <= x && x < g.boardWidth && g.board[y][x] != -g.curPiece {
+//// 			ImageElement img = query("#s-$y-$x")
+//// 			img.src = g.squareImages[g.curPiece].src
+//// 			g.board[y][x] = -g.curPiece
+//// 		}
+//// 		x := g.xToErase[k]
+//// 		y := g.yToErase[k]
+//// 		if g.board[y][x] == 0 {
+//// 			ImageElement img = query("#s-$y-$x")
+//// 			img.src = g.squareImages[0].src
 //// 		}
 //// 	}
 //// }
@@ -559,7 +553,7 @@ loop:
 //// }
 //// 
 //// func (g *Game) resume() {
-//// 	if g.boardDrawn && g.gameStarted && g.gamePaused {
+//// 	if g.gameStarted && g.gamePaused {
 //// 		g.play()
 //// 		g.gamePaused = false
 //// 	}
