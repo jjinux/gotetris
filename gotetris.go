@@ -111,21 +111,28 @@ type Game struct {
 }
 
 // NewGame returns a fully-initialized game.
-func NewGame() (g *Game) {
-	g = new(Game)
+func NewGame() *Game {
+	g := new(Game)
+	g.resetGame()
+	return g
+}
 
+// Reset the game in order to play again.
+func (g *Game) resetGame() {
+	g.curLevel = 1
 	g.curX = 1
 	g.curY = 1
-
-	// Keystroke processing
-	g.isActiveLeft = false
-	g.isActiveRight = false
-	g.isActiveUp = false
-	g.isActiveDown = false
+	g.skyline = boardHeight - 1
+	g.gamePaused = false
+	g.gameStarted = false
+	g.numLines = 0
 
 	g.board = make([][]int, boardHeight)
 	for i := 0; i < boardHeight; i++ {
 		g.board[i] = make([]int, boardWidth)
+		for j := 0; j < boardWidth; j++ {
+			g.board[i][j] = 0
+		}
 	}
 
 	g.xToErase = []int{0, 0, 0, 0}
@@ -157,24 +164,11 @@ func NewGame() (g *Game) {
 		{0, 0, 1, 1},
 	}
 
-	g.resetGame()
-
-	return
-}
-
-// Reset the game in order to play again.
-func (g *Game) resetGame() {
-	for i := 0; i < boardHeight; i++ {
-		for j := 0; j < boardWidth; j++ {
-			g.board[i][j] = 0
-		}
-	}
-
-	g.gameStarted = false
-	g.gamePaused = false
-	g.numLines = 0
-	g.curLevel = 1
-	g.skyline = boardHeight - 1
+	// Keystroke processing
+	g.isActiveLeft = false
+	g.isActiveRight = false
+	g.isActiveUp = false
+	g.isActiveDown = false
 }
 
 // Function run draws everything and starts handling events.
