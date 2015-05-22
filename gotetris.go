@@ -257,17 +257,18 @@ func (g *Game) play() {
 	}
 }
 
+// This gets called as part of the piece falling.
 func (g *Game) fillMatrix() {
-	//// 	for k := 0; k < numSquares; k++ {
-	//// 		x := g.curX + g.dx[k]
-	//// 		y := g.curY + g.dy[k]
-	//// 		if 0 <= y && y < g.boardHeight && 0 <= x && x < g.boardWidth {
-	//// 			g.board[y][x] = g.curPiece
-	//// 			if y < g.skyline {
-	//// 				g.skyline = y
-	//// 			}
-	//// 		}
-	//// 	}
+	for k := 0; k < numSquares; k++ {
+		x := g.curX + g.dx[k]
+		y := g.curY + g.dy[k]
+		if 0 <= y && y < boardHeight && 0 <= x && x < boardWidth {
+			g.board[y][x] = g.curPiece
+			if y < g.skyline {
+				g.skyline = y
+			}
+		}
+	}
 }
 
 func (g *Game) removeLines() {
