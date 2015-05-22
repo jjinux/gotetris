@@ -71,7 +71,7 @@ var instructions = []string{
 	"Level: %v",
 	"Lines: %v",
 	"",
-	"GAME OVER!"
+	"GAME OVER!",
 }
 
 // Game play
@@ -210,6 +210,11 @@ func (g *Game) Run() {
 	}
 }
 
+// Set the timer to make the pieces fall again.
+func (g *Game) resetFallingTimer() {
+	g.fallingTimer.Reset(g.speed())
+}
+
 // Function speed calculates the speed based on the curLevel.
 func (g *Game) speed() time.Duration {
 	return slowestSpeed - fastestSpeed*time.Duration(g.curLevel)
@@ -239,12 +244,12 @@ func (g *Game) drawBoard() {
 
 func (g *Game) play() {
 	//// 	if g.moveDown() {
-	//// 		g.fallingTimer.Reset(g.speed())
+	//// 		g.resetFallingTimer()
 	//// 	} else {
 	//// 		g.fillMatrix()
 	//// 		g.removeLines()
 	//// 		if g.skyline > 0 && g.getPiece() {
-	//// 			g.fallingTimer.Reset(g.speed())
+	//// 			g.resetFallingTimer()
 	//// 		} else {
 	//// 			g.gameOver = true
 	//// 		}
@@ -314,15 +319,15 @@ func (g *Game) pieceFits(x, y int) bool {
 }
 
 func (g *Game) erasePiece() {
-//// 	for k := 0; k < numSquares; k++ {
-//// 		x := g.curX + g.dx[k]
-//// 		y := g.curY + g.dy[k]
-//// 		if 0 <= y && y < g.boardHeight && 0 <= x && x < g.boardWidth {
-//// 			g.xToErase[k] = x
-//// 			g.yToErase[k] = y
-//// 			g.board[y][x] = 0
-//// 		}
-//// 	}
+	//// 	for k := 0; k < numSquares; k++ {
+	//// 		x := g.curX + g.dx[k]
+	//// 		y := g.curY + g.dy[k]
+	//// 		if 0 <= y && y < g.boardHeight && 0 <= x && x < g.boardWidth {
+	//// 			g.xToErase[k] = x
+	//// 			g.yToErase[k] = y
+	//// 			g.board[y][x] = 0
+	//// 		}
+	//// 	}
 }
 
 func (g *Game) drawPiece() {
@@ -358,7 +363,7 @@ func (g *Game) start() {
 	g.drawPiece()
 	g.gameStarted = true
 	g.gamePaused = false
-	g.fallingTimer.Reset(g.speed())
+	g.resetFallingTimer()
 }
 
 func (g *Game) pause() {
@@ -380,7 +385,7 @@ func (g *Game) moveLeft() {
 		g.dxPrime[k] = g.dx[k]
 		g.dyPrime[k] = g.dy[k]
 	}
-	if g.pieceFits(g.curX - 1, g.curY) {
+	if g.pieceFits(g.curX-1, g.curY) {
 		g.erasePiece()
 		g.curX--
 		g.drawPiece()
@@ -477,7 +482,7 @@ func (g *Game) resume() {
 //// 		g.curY++
 //// 	}
 //// 	g.drawPiece()
-//// 	g.fallingTimer.Reset(g.speed())
+//// 	g.resetFallingTimer()
 //// }
 ////
 //// func (g *Game) write(String message) {
