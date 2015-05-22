@@ -152,8 +152,14 @@ func (g *Game) resetGame() {
 	}
 }
 
-// Function run draws everything and starts handling events.
+// Function run initializes termbox, draws everything, and starts handling events.
 func (g *Game) Run() {
+	err := termbox.Init()
+	if err != nil {
+		panic(err)
+	}
+	defer termbox.Close()
+
 	g.resetGame()
 	g.drawBoard()
 
@@ -164,12 +170,26 @@ func (g *Game) Run() {
 		}
 	}()
 
-loop:
 	for {
 		select {
 		case ev := <-eventQueue:
-			if ev.Type == termbox.EventKey && ev.Key == termbox.KeyEsc {
-				break loop
+			if ev.Type == termbox.EventKey {
+				switch ev.Key {
+				case termbox.KeyEsc:
+					return
+				case termbox.Key('s'):
+					g.start()
+				case termbox.Key('p'):
+					g.pause()
+				case termbox.KeyArrowLeft:
+					g.moveLeft()
+				case termbox.KeyArrowRight:
+					g.moveRight()
+				case termbox.KeyArrowUp:
+					g.rotate()
+				case termbox.KeyArrowDown:
+					g.moveDown()
+				}
 			}
 		default:
 			g.drawBoard()
@@ -232,46 +252,6 @@ func (g *Game) drawBoard() {
 //// 			g.resetGame()
 //// 		}
 //// 	}
-//// }
-////
-//// func (g *Game) pause() {
-//// 	if g.gameStarted {
-//// 		if g.gamePaused {
-//// 			g.resume()
-//// 			return
-//// 		}
-//// 		g.timer.cancel()
-//// 		g.gamePaused = true
-//// 	}
-//// }
-////
-//// func (g *Game) onKeyDown(event KeyboardEvent) {
-//// 	// I'm positive there are more modern ways to do keyboard event handling.
-//// 	String keyNN, keyIE
-//// 	keyNN = " ${event.keyCode} "
-//// 	keyIE = " ${event.keyCode} "
-////
-//// 	// Only preventDefault if we can actually handle the keyDown event.  If we
-//// 	// capture all keyDown events, we break things like using ^r to reload the page.
-////
-//// 	if !g.gameStarted || g.gamePaused {
-//// 		return
-//// 	}
-////
-//// 	if leftNN.indexOf(keyNN) != -1 || leftIE.indexOf(keyIE) != -1 {
-//// 		g.moveLeft()
-//// 	} else if rightNN.indexOf(keyNN) != -1 || rightIE.indexOf(keyIE) != -1 {
-//// 		g.moveRight()
-//// 	} else if upNN.indexOf(keyNN) != -1 || upIE.indexOf(keyIE) != -1 {
-//// 		g.rotate()
-//// 	} else if spaceNN.indexOf(keyNN) != -1 || spaceIE.indexOf(keyIE) != -1 {
-//// 		g.fall()
-//// 	} else if downNN.indexOf(keyNN) != -1 || downIE.indexOf(keyIE) != -1 {
-//// 		g.moveDown()
-//// 	} else {
-//// 		return
-//// 	}
-//// 	event.preventDefault()
 //// }
 ////
 //// func (g *Game) fillMatrix() {
@@ -366,44 +346,101 @@ func (g *Game) drawBoard() {
 //// 	}
 //// }
 ////
-//// func (g *Game) moveDown() {
-//// 	for k := 0; k < numSquares; k++ {
-//// 		g.dxPrime[k] = g.dx[k]
-//// 		g.dyPrime[k] = g.dy[k]
-//// 	}
-//// 	if g.pieceFits(g.curX, g.curY + 1) {
-//// 		g.erasePiece()
-//// 		g.curY++
-//// 		g.drawPiece()
-//// 		return true
-//// 	}
-//// 	return false
-//// }
+func (g *Game) start() {
+	//// 	if g.gameStarted {
+	//// 		if g.gamePaused {
+	//// 			g.resume()
+	//// 		}
+	//// 		return
+	//// 	}
+	//// 	g.getPiece()
+	//// 	g.drawPiece()
+	//// 	g.gameStarted = true
+	//// 	g.gamePaused = false
+	//// 	InputElement g.numLinesField = query("#num-lines")
+	//// 	g.numLinesField.value = g.numLines.toString()
+	//// 	g.timer = new(Timer(g.speed(), (timer) => g.play()))
+}
+
 ////
-//// func (g *Game) moveLeft() {
-//// 	for k := 0; k < numSquares; k++ {
-//// 		g.dxPrime[k] = g.dx[k]
-//// 		g.dyPrime[k] = g.dy[k]
-//// 	}
-//// 	if g.pieceFits(g.curX - 1, g.curY) {
-//// 		g.erasePiece()
-//// 		g.curX--
-//// 		g.drawPiece()
-//// 	}
-//// }
+func (g *Game) pause() {
+	//// 	if g.gameStarted {
+	//// 		if g.gamePaused {
+	//// 			g.resume()
+	//// 			return
+	//// 		}
+	//// 		g.timer.cancel()
+	//// 		g.gamePaused = true
+	//// 	}
+}
+
 ////
-//// func (g *Game) moveRight() {
-//// 	for k := 0; k < numSquares; k++ {
-//// 		g.dxPrime[k] = g.dx[k]
-//// 		g.dyPrime[k] = g.dy[k]
-//// 	}
-//// 	if g.pieceFits(g.curX + 1, g.curY) {
-//// 		g.erasePiece()
-//// 		g.curX++
-//// 		g.drawPiece()
-//// 	}
-//// }
+func (g *Game) moveLeft() {
+	//// 	if !g.gameStarted || g.gamePaused {
+	////		return
+	////	}
+	//// 	for k := 0; k < numSquares; k++ {
+	//// 		g.dxPrime[k] = g.dx[k]
+	//// 		g.dyPrime[k] = g.dy[k]
+	//// 	}
+	//// 	if g.pieceFits(g.curX - 1, g.curY) {
+	//// 		g.erasePiece()
+	//// 		g.curX--
+	//// 		g.drawPiece()
+	//// 	}
+}
+
 ////
+func (g *Game) moveRight() {
+	//// 	if !g.gameStarted || g.gamePaused {
+	////		return
+	////	}
+	//// 	for k := 0; k < numSquares; k++ {
+	//// 		g.dxPrime[k] = g.dx[k]
+	//// 		g.dyPrime[k] = g.dy[k]
+	//// 	}
+	//// 	if g.pieceFits(g.curX + 1, g.curY) {
+	//// 		g.erasePiece()
+	//// 		g.curX++
+	//// 		g.drawPiece()
+	//// 	}
+}
+
+func (g *Game) rotate() {
+	//// 	if !g.gameStarted || g.gamePaused {
+	////		return
+	////	}
+	//// 	for k := 0; k < numSquares; k++ {
+	//// 		g.dxPrime[k] = g.dy[k]
+	//// 		g.dyPrime[k] = -g.dx[k]
+	//// 	}
+	//// 	if g.pieceFits(g.curX, g.curY) {
+	//// 		g.erasePiece()
+	//// 		for k = 0; k < numSquares; k++ {
+	//// 			g.dx[k] = g.dxPrime[k]
+	//// 			g.dy[k] = g.dyPrime[k]
+	//// 		}
+	//// 		g.drawPiece()
+	//// 	}
+}
+
+func (g *Game) moveDown() {
+	//// 	if !g.gameStarted || g.gamePaused {
+	////		return
+	////	}
+	//// 	for k := 0; k < numSquares; k++ {
+	//// 		g.dxPrime[k] = g.dx[k]
+	//// 		g.dyPrime[k] = g.dy[k]
+	//// 	}
+	//// 	if g.pieceFits(g.curX, g.curY + 1) {
+	//// 		g.erasePiece()
+	//// 		g.curY++
+	//// 		g.drawPiece()
+	//// 		return true
+	//// 	}
+	//// 	return false
+}
+
 //// func (g *Game) getPiece() bool {
 //// 	g.curPiece = 1 + rand.Int()%numTypes
 //// 	g.curX = 5
@@ -427,21 +464,6 @@ func (g *Game) drawBoard() {
 //// 	if g.gameStarted && g.gamePaused {
 //// 		g.play()
 //// 		g.gamePaused = false
-//// 	}
-//// }
-////
-//// func (g *Game) rotate() {
-//// 	for k := 0; k < numSquares; k++ {
-//// 		g.dxPrime[k] = g.dy[k]
-//// 		g.dyPrime[k] = -g.dx[k]
-//// 	}
-//// 	if g.pieceFits(g.curX, g.curY) {
-//// 		g.erasePiece()
-//// 		for k = 0; k < numSquares; k++ {
-//// 			g.dx[k] = g.dxPrime[k]
-//// 			g.dy[k] = g.dyPrime[k]
-//// 		}
-//// 		g.drawPiece()
 //// 	}
 //// }
 ////
@@ -476,13 +498,7 @@ func tbprint(x, y int, fg, bg termbox.Attribute, msg string) {
 	}
 }
 
-// Function main initializes termbox and runs a new Game.
+// Function main runs a new Game.
 func main() {
-	err := termbox.Init()
-	if err != nil {
-		panic(err)
-	}
-	defer termbox.Close()
-
 	NewGame().Run()
 }
