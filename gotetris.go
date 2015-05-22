@@ -356,6 +356,7 @@ func (g *Game) start() {
 	g.resetFallingTimer()
 }
 
+// The user pressed the 'p' key to pause the game.
 func (g *Game) pause() {
 	if g.gameStarted {
 		if g.gamePaused {
@@ -367,8 +368,9 @@ func (g *Game) pause() {
 	}
 }
 
+// The user pressed the left arrow.
 func (g *Game) moveLeft() {
-	if !g.gameStarted || g.gamePaused {
+	if !g.gameStarted || g.gamePaused || g.gameOver {
 		return
 	}
 	for k := 0; k < numSquares; k++ {
@@ -382,41 +384,44 @@ func (g *Game) moveLeft() {
 	}
 }
 
+// The user pressed the right arrow.
 func (g *Game) moveRight() {
-	//// 	if !g.gameStarted || g.gamePaused {
-	////		return
-	////	}
-	//// 	for k := 0; k < numSquares; k++ {
-	//// 		g.dxPrime[k] = g.dx[k]
-	//// 		g.dyPrime[k] = g.dy[k]
-	//// 	}
-	//// 	if g.pieceFits(g.curX + 1, g.curY) {
-	//// 		g.erasePiece()
-	//// 		g.curX++
-	//// 		g.placePiece()
-	//// 	}
+	if !g.gameStarted || g.gamePaused || g.gameOver {
+		return
+	}
+	for k := 0; k < numSquares; k++ {
+		g.dxPrime[k] = g.dx[k]
+		g.dyPrime[k] = g.dy[k]
+	}
+	if g.pieceFits(g.curX+1, g.curY) {
+		g.erasePiece()
+		g.curX++
+		g.placePiece()
+	}
 }
 
+// The user pressed the up arrow in order to rotate the piece.
 func (g *Game) rotate() {
-	//// 	if !g.gameStarted || g.gamePaused {
-	////		return
-	////	}
-	//// 	for k := 0; k < numSquares; k++ {
-	//// 		g.dxPrime[k] = g.dy[k]
-	//// 		g.dyPrime[k] = -g.dx[k]
-	//// 	}
-	//// 	if g.pieceFits(g.curX, g.curY) {
-	//// 		g.erasePiece()
-	//// 		for k = 0; k < numSquares; k++ {
-	//// 			g.dx[k] = g.dxPrime[k]
-	//// 			g.dy[k] = g.dyPrime[k]
-	//// 		}
-	//// 		g.placePiece()
-	//// 	}
+	if !g.gameStarted || g.gamePaused || g.gameOver {
+		return
+	}
+	for k := 0; k < numSquares; k++ {
+		g.dxPrime[k] = g.dy[k]
+		g.dyPrime[k] = -g.dx[k]
+	}
+	if g.pieceFits(g.curX, g.curY) {
+		g.erasePiece()
+		for k := 0; k < numSquares; k++ {
+			g.dx[k] = g.dxPrime[k]
+			g.dy[k] = g.dyPrime[k]
+		}
+		g.placePiece()
+	}
 }
 
+// The user pressed the down arrow in order to drop the piece faster.
 func (g *Game) moveDown() bool {
-	//// 	if !g.gameStarted || g.gamePaused {
+	//// 	if !g.gameStarted || g.gamePaused || g.gameOver {
 	////		return
 	////	}
 	//// 	for k := 0; k < numSquares; k++ {
