@@ -73,8 +73,8 @@ const numTypes = 7
 const defaultLevel = 1
 const maxLevel = 10
 const rowsPerLevel = 5
-const slowestSpeed = 700
-const fastestSpeed = 60
+const slowestSpeed = 700 * time.Millisecond
+const fastestSpeed = 60 * time.Millisecond
 
 type Game struct {
 	curLevel    int
@@ -84,7 +84,6 @@ type Game struct {
 	skyline     int
 	gamePaused  bool
 	gameStarted bool
-	timer       *time.Timer
 	numLines    int
 	board       [][]int // [y][x]
 	xToErase    []int
@@ -95,6 +94,7 @@ type Game struct {
 	dyPrime     []int
 	dxBank      [][]int
 	dyBank      [][]int
+	timer       *time.Timer
 }
 
 // NewGame returns a fully-initialized game.
@@ -150,6 +150,9 @@ func (g *Game) resetGame() {
 		{0, 0, 0, 0},
 		{0, 0, 1, 1},
 	}
+
+	g.timer = time.NewTimer(time.Duration(1000000 * time.Second))
+	g.timer.Stop()
 }
 
 // Function run initializes termbox, draws everything, and starts handling events.
@@ -191,6 +194,8 @@ func (g *Game) Run() {
 					g.moveDown()
 				}
 			}
+		case <-g.timer.C:
+			g.play()
 		default:
 			g.drawBoard()
 			time.Sleep(10 * time.Millisecond)
@@ -199,8 +204,8 @@ func (g *Game) Run() {
 }
 
 // Function speed calculates the speed based on the curLevel.
-func (g *Game) speed() int {
-	return slowestSpeed - fastestSpeed*g.curLevel
+func (g *Game) speed() time.Duration {
+	return slowestSpeed - fastestSpeed*time.Duration(g.curLevel)
 }
 
 //// func (g *Game) start() {
@@ -216,7 +221,7 @@ func (g *Game) speed() int {
 //// 	g.gamePaused = false
 //// 	InputElement g.numLinesField = query("#num-lines")
 //// 	g.numLinesField.value = g.numLines.toString()
-//// 	g.timer = new(Timer(g.speed(), (timer) => g.play()))
+//// 	g.timer.Reset(g.speed())
 //// }
 
 func (g *Game) drawBoard() {
@@ -239,21 +244,21 @@ func (g *Game) drawBoard() {
 	termbox.Flush()
 }
 
-//// func (g *Game) play() {
-//// 	if g.moveDown() {
-//// 		g.timer = new(Timer(g.speed(), (timer) => g.play()))
-//// 	} else {
-//// 		g.fillMatrix()
-//// 		g.removeLines()
-//// 		if g.skyline > 0 && g.getPiece() {
-//// 			g.timer = new(Timer(g.speed(), (timer) => g.play()))
-//// 		} else {
-//// 			window.alert("Game over!")
-//// 			g.resetGame()
-//// 		}
-//// 	}
-//// }
-////
+func (g *Game) play() {
+	//// 	if g.moveDown() {
+	//// 		g.timer.Reset(g.speed())
+	//// 	} else {
+	//// 		g.fillMatrix()
+	//// 		g.removeLines()
+	//// 		if g.skyline > 0 && g.getPiece() {
+	//// 			g.timer.Reset(g.speed())
+	//// 		} else {
+	//// 			window.alert("Game over!")
+	//// 			g.resetGame()
+	//// 		}
+	//// 	}
+}
+
 //// func (g *Game) fillMatrix() {
 //// 	for k := 0; k < numSquares; k++ {
 //// 		x := g.curX + g.dx[k]
@@ -327,54 +332,50 @@ func (g *Game) drawBoard() {
 //// 		}
 //// 	}
 //// }
-////
-//// func (g *Game) drawPiece() {
-//// 	for k := 0; k < numSquares; k++ {
-//// 		x = g.curX + g.dx[k]
-//// 		y = g.curY + g.dy[k]
-//// 		if 0 <= y && y < g.boardHeight && 0 <= x && x < g.boardWidth && g.board[y][x] != -g.curPiece {
-//// 			ImageElement img = query("#s-$y-$x")
-//// 			img.src = pieceColors[g.curPiece].src
-//// 			g.board[y][x] = -g.curPiece
-//// 		}
-//// 		x := g.xToErase[k]
-//// 		y := g.yToErase[k]
-//// 		if g.board[y][x] == 0 {
-//// 			ImageElement img = query("#s-$y-$x")
-//// 			img.src = pieceColors[0].src
-//// 		}
-//// 	}
-//// }
-////
+
+func (g *Game) drawPiece() {
+	//// 	for k := 0; k < numSquares; k++ {
+	//// 		x = g.curX + g.dx[k]
+	//// 		y = g.curY + g.dy[k]
+	//// 		if 0 <= y && y < g.boardHeight && 0 <= x && x < g.boardWidth && g.board[y][x] != -g.curPiece {
+	//// 			ImageElement img = query("#s-$y-$x")
+	//// 			img.src = pieceColors[g.curPiece].src
+	//// 			g.board[y][x] = -g.curPiece
+	//// 		}
+	//// 		x := g.xToErase[k]
+	//// 		y := g.yToErase[k]
+	//// 		if g.board[y][x] == 0 {
+	//// 			ImageElement img = query("#s-$y-$x")
+	//// 			img.src = pieceColors[0].src
+	//// 		}
+	//// 	}
+}
+
 func (g *Game) start() {
-	//// 	if g.gameStarted {
-	//// 		if g.gamePaused {
-	//// 			g.resume()
-	//// 		}
-	//// 		return
-	//// 	}
-	//// 	g.getPiece()
-	//// 	g.drawPiece()
-	//// 	g.gameStarted = true
-	//// 	g.gamePaused = false
-	//// 	InputElement g.numLinesField = query("#num-lines")
-	//// 	g.numLinesField.value = g.numLines.toString()
-	//// 	g.timer = new(Timer(g.speed(), (timer) => g.play()))
+	if g.gameStarted {
+		if g.gamePaused {
+			g.resume()
+		}
+		return
+	}
+	g.getPiece()
+	g.drawPiece()
+	g.gameStarted = true
+	g.gamePaused = false
+	g.timer.Reset(g.speed())
 }
 
-////
 func (g *Game) pause() {
-	//// 	if g.gameStarted {
-	//// 		if g.gamePaused {
-	//// 			g.resume()
-	//// 			return
-	//// 		}
-	//// 		g.timer.cancel()
-	//// 		g.gamePaused = true
-	//// 	}
+	if g.gameStarted {
+		if g.gamePaused {
+			g.resume()
+			return
+		}
+		g.timer.Stop()
+		g.gamePaused = true
+	}
 }
 
-////
 func (g *Game) moveLeft() {
 	//// 	if !g.gameStarted || g.gamePaused {
 	////		return
@@ -390,7 +391,6 @@ func (g *Game) moveLeft() {
 	//// 	}
 }
 
-////
 func (g *Game) moveRight() {
 	//// 	if !g.gameStarted || g.gamePaused {
 	////		return
@@ -441,32 +441,32 @@ func (g *Game) moveDown() {
 	//// 	return false
 }
 
-//// func (g *Game) getPiece() bool {
-//// 	g.curPiece = 1 + rand.Int()%numTypes
-//// 	g.curX = 5
-//// 	g.curY = 0
-//// 	for k := 0; k < numSquares; k++ {
-//// 		g.dx[k] = g.dxBank[g.curPiece][k]
-//// 		g.dy[k] = g.dyBank[g.curPiece][k]
-//// 	}
-//// 	for k = 0; k < numSquares; k++ {
-//// 		g.dxPrime[k] = g.dx[k]
-//// 		g.dyPrime[k] = g.dy[k]
-//// 	}
-//// 	if g.pieceFits(g.curX, g.curY) {
-//// 		g.drawPiece()
-//// 		return true
-//// 	}
-//// 	return false
-//// }
-////
-//// func (g *Game) resume() {
-//// 	if g.gameStarted && g.gamePaused {
-//// 		g.play()
-//// 		g.gamePaused = false
-//// 	}
-//// }
-////
+func (g *Game) getPiece() bool {
+	//// 	g.curPiece = 1 + rand.Int()%numTypes
+	//// 	g.curX = 5
+	//// 	g.curY = 0
+	//// 	for k := 0; k < numSquares; k++ {
+	//// 		g.dx[k] = g.dxBank[g.curPiece][k]
+	//// 		g.dy[k] = g.dyBank[g.curPiece][k]
+	//// 	}
+	//// 	for k = 0; k < numSquares; k++ {
+	//// 		g.dxPrime[k] = g.dx[k]
+	//// 		g.dyPrime[k] = g.dy[k]
+	//// 	}
+	//// 	if g.pieceFits(g.curX, g.curY) {
+	//// 		g.drawPiece()
+	//// 		return true
+	//// 	}
+	return false
+}
+
+func (g *Game) resume() {
+	//// 	if g.gameStarted && g.gamePaused {
+	//// 		g.play()
+	//// 		g.gamePaused = false
+	//// 	}
+}
+
 //// func (g *Game) fall() {
 //// 	for k := 0; k < numSquares; k++ {
 //// 		g.dxPrime[k] = g.dx[k]
@@ -475,13 +475,13 @@ func (g *Game) moveDown() {
 //// 	if !g.pieceFits(g.curX, g.curY + 1) {
 //// 		return
 //// 	}
-//// 	g.timer.cancel()
+//// 	g.timer.Stop()
 //// 	g.erasePiece()
 //// 	while g.pieceFits(g.curX, g.curY + 1) {
 //// 		g.curY++
 //// 	}
 //// 	g.drawPiece()
-//// 	g.timer = new(Timer(g.speed(), (timer) => g.play()))
+//// 	g.timer.Reset(g.speed())
 //// }
 ////
 //// func (g *Game) write(String message) {
