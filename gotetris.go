@@ -49,6 +49,11 @@ const boardEndY = boardStartY + boardHeight
 const instructionsStartX = boardEndX + defaultMarginWidth
 const instructionsStartY = boardStartY
 
+// Speeds
+const animationSpeed = 10 * time.Millisecond
+const slowestSpeed = 700 * time.Millisecond
+const fastestSpeed = 60 * time.Millisecond
+
 // Text in the UI
 const title = "Tetris Written in Go"
 
@@ -73,28 +78,26 @@ const numTypes = 7
 const defaultLevel = 1
 const maxLevel = 10
 const rowsPerLevel = 5
-const slowestSpeed = 700 * time.Millisecond
-const fastestSpeed = 60 * time.Millisecond
 
 type Game struct {
-	curLevel    int
-	curX        int
-	curY        int
-	curPiece    int
-	skyline     int
-	gamePaused  bool
-	gameStarted bool
-	numLines    int
-	board       [][]int // [y][x]
-	xToErase    []int
-	yToErase    []int
-	dx          []int
-	dy          []int
-	dxPrime     []int
-	dyPrime     []int
-	dxBank      [][]int
-	dyBank      [][]int
-	timer       *time.Timer
+	curLevel     int
+	curX         int
+	curY         int
+	curPiece     int
+	skyline      int
+	gamePaused   bool
+	gameStarted  bool
+	numLines     int
+	board        [][]int // [y][x]
+	xToErase     []int
+	yToErase     []int
+	dx           []int
+	dy           []int
+	dxPrime      []int
+	dyPrime      []int
+	dxBank       [][]int
+	dyBank       [][]int
+	fallingTimer *time.Timer
 }
 
 // NewGame returns a fully-initialized game.
@@ -151,8 +154,8 @@ func (g *Game) resetGame() {
 		{0, 0, 1, 1},
 	}
 
-	g.timer = time.NewTimer(time.Duration(1000000 * time.Second))
-	g.timer.Stop()
+	g.fallingTimer = time.NewTimer(time.Duration(1000000 * time.Second))
+	g.fallingTimer.Stop()
 }
 
 // Function run initializes termbox, draws everything, and starts handling events.
@@ -194,11 +197,11 @@ func (g *Game) Run() {
 					g.moveDown()
 				}
 			}
-		case <-g.timer.C:
+		case <-g.fallingTimer.C:
 			g.play()
 		default:
 			g.drawBoard()
-			time.Sleep(10 * time.Millisecond)
+			time.Sleep(animationSpeed)
 		}
 	}
 }
@@ -221,7 +224,7 @@ func (g *Game) speed() time.Duration {
 //// 	g.gamePaused = false
 //// 	InputElement g.numLinesField = query("#num-lines")
 //// 	g.numLinesField.value = g.numLines.toString()
-//// 	g.timer.Reset(g.speed())
+//// 	g.fallingTimer.Reset(g.speed())
 //// }
 
 func (g *Game) drawBoard() {
@@ -246,12 +249,12 @@ func (g *Game) drawBoard() {
 
 func (g *Game) play() {
 	//// 	if g.moveDown() {
-	//// 		g.timer.Reset(g.speed())
+	//// 		g.fallingTimer.Reset(g.speed())
 	//// 	} else {
 	//// 		g.fillMatrix()
 	//// 		g.removeLines()
 	//// 		if g.skyline > 0 && g.getPiece() {
-	//// 			g.timer.Reset(g.speed())
+	//// 			g.fallingTimer.Reset(g.speed())
 	//// 		} else {
 	//// 			window.alert("Game over!")
 	//// 			g.resetGame()
@@ -362,7 +365,7 @@ func (g *Game) start() {
 	g.drawPiece()
 	g.gameStarted = true
 	g.gamePaused = false
-	g.timer.Reset(g.speed())
+	g.fallingTimer.Reset(g.speed())
 }
 
 func (g *Game) pause() {
@@ -371,7 +374,7 @@ func (g *Game) pause() {
 			g.resume()
 			return
 		}
-		g.timer.Stop()
+		g.fallingTimer.Stop()
 		g.gamePaused = true
 	}
 }
@@ -475,13 +478,13 @@ func (g *Game) resume() {
 //// 	if !g.pieceFits(g.curX, g.curY + 1) {
 //// 		return
 //// 	}
-//// 	g.timer.Stop()
+//// 	g.fallingTimer.Stop()
 //// 	g.erasePiece()
 //// 	while g.pieceFits(g.curX, g.curY + 1) {
 //// 		g.curY++
 //// 	}
 //// 	g.drawPiece()
-//// 	g.timer.Reset(g.speed())
+//// 	g.fallingTimer.Reset(g.speed())
 //// }
 ////
 //// func (g *Game) write(String message) {
