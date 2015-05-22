@@ -70,6 +70,8 @@ var instructions = []string{
 	"",
 	"Level: %v",
 	"Lines: %v",
+	"",
+	"GAME OVER!"
 }
 
 // Game play
@@ -85,8 +87,9 @@ type Game struct {
 	curY         int
 	curPiece     int
 	skyline      int
-	gamePaused   bool
 	gameStarted  bool
+	gamePaused   bool
+	gameOver     bool
 	numLines     int
 	board        [][]int // [y][x]
 	xToErase     []int
@@ -113,8 +116,9 @@ func (g *Game) resetGame() {
 	g.curX = 1
 	g.curY = 1
 	g.skyline = boardHeight - 1
-	g.gamePaused = false
 	g.gameStarted = false
+	g.gamePaused = false
+	g.gameOver = false
 	g.numLines = 0
 
 	g.board = make([][]int, boardHeight)
@@ -211,22 +215,6 @@ func (g *Game) speed() time.Duration {
 	return slowestSpeed - fastestSpeed*time.Duration(g.curLevel)
 }
 
-//// func (g *Game) start() {
-//// 	if g.gameStarted {
-//// 		if g.gamePaused {
-//// 			g.resume()
-//// 		}
-//// 		return
-//// 	}
-//// 	g.getPiece()
-//// 	g.drawPiece()
-//// 	g.gameStarted = true
-//// 	g.gamePaused = false
-//// 	InputElement g.numLinesField = query("#num-lines")
-//// 	g.numLinesField.value = g.numLines.toString()
-//// 	g.fallingTimer.Reset(g.speed())
-//// }
-
 func (g *Game) drawBoard() {
 	termbox.Clear(backgroundColor, backgroundColor)
 	tbprint(titleStartX, titleStartY, instructionsColor, backgroundColor, title)
@@ -241,6 +229,8 @@ func (g *Game) drawBoard() {
 			instruction = fmt.Sprintf(instruction, g.curLevel)
 		} else if strings.HasPrefix(instruction, "Lines:") {
 			instruction = fmt.Sprintf(instruction, g.numLines)
+		} else if strings.HasPrefix(instruction, "GAME OVER") && !g.gameOver {
+			instruction = ""
 		}
 		tbprint(instructionsStartX, instructionsStartY+y, instructionsColor, backgroundColor, instruction)
 	}
@@ -256,8 +246,7 @@ func (g *Game) play() {
 	//// 		if g.skyline > 0 && g.getPiece() {
 	//// 			g.fallingTimer.Reset(g.speed())
 	//// 		} else {
-	//// 			window.alert("Game over!")
-	//// 			g.resetGame()
+	//// 			g.gameOver = true
 	//// 		}
 	//// 	}
 }
@@ -309,22 +298,22 @@ func (g *Game) play() {
 //// 		}
 //// 	}
 //// }
-////
-//// func (g *Game) pieceFits(x, y) bool {
-//// 	for k := 0; k < numSquares; k++ {
-//// 		theX := x + g.dxPrime[k]
-//// 		theY := y + g.dyPrime[k]
-//// 		if theX < 0 || theX >= g.boardWidth || theY >= g.boardHeight {
-//// 			return false
-//// 		}
-//// 		if theY > -1 && g.board[theY][theX] > 0 {
-//// 			return false
-//// 		}
-//// 	}
-//// 	return true
-//// }
-////
-//// func (g *Game) erasePiece() {
+
+func (g *Game) pieceFits(x, y int) bool {
+	//// 	for k := 0; k < numSquares; k++ {
+	//// 		theX := x + g.dxPrime[k]
+	//// 		theY := y + g.dyPrime[k]
+	//// 		if theX < 0 || theX >= g.boardWidth || theY >= g.boardHeight {
+	//// 			return false
+	//// 		}
+	//// 		if theY > -1 && g.board[theY][theX] > 0 {
+	//// 			return false
+	//// 		}
+	//// 	}
+	return true
+}
+
+func (g *Game) erasePiece() {
 //// 	for k := 0; k < numSquares; k++ {
 //// 		x := g.curX + g.dx[k]
 //// 		y := g.curY + g.dy[k]
@@ -334,7 +323,7 @@ func (g *Game) play() {
 //// 			g.board[y][x] = 0
 //// 		}
 //// 	}
-//// }
+}
 
 func (g *Game) drawPiece() {
 	//// 	for k := 0; k < numSquares; k++ {
@@ -354,7 +343,11 @@ func (g *Game) drawPiece() {
 	//// 	}
 }
 
+// The user pressed the 's' key to start the game.
 func (g *Game) start() {
+	if g.gameOver {
+		g.resetGame()
+	}
 	if g.gameStarted {
 		if g.gamePaused {
 			g.resume()
@@ -380,18 +373,18 @@ func (g *Game) pause() {
 }
 
 func (g *Game) moveLeft() {
-	//// 	if !g.gameStarted || g.gamePaused {
-	////		return
-	////	}
-	//// 	for k := 0; k < numSquares; k++ {
-	//// 		g.dxPrime[k] = g.dx[k]
-	//// 		g.dyPrime[k] = g.dy[k]
-	//// 	}
-	//// 	if g.pieceFits(g.curX - 1, g.curY) {
-	//// 		g.erasePiece()
-	//// 		g.curX--
-	//// 		g.drawPiece()
-	//// 	}
+	if !g.gameStarted || g.gamePaused {
+		return
+	}
+	for k := 0; k < numSquares; k++ {
+		g.dxPrime[k] = g.dx[k]
+		g.dyPrime[k] = g.dy[k]
+	}
+	if g.pieceFits(g.curX - 1, g.curY) {
+		g.erasePiece()
+		g.curX--
+		g.drawPiece()
+	}
 }
 
 func (g *Game) moveRight() {
