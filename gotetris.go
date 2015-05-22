@@ -327,22 +327,15 @@ func (g *Game) erasePiece() {
 	}
 }
 
-func (g *Game) drawPiece() {
-	//// 	for k := 0; k < numSquares; k++ {
-	//// 		x = g.curX + g.dx[k]
-	//// 		y = g.curY + g.dy[k]
-	//// 		if 0 <= y && y < g.boardHeight && 0 <= x && x < g.boardWidth && g.board[y][x] != -g.curPiece {
-	//// 			ImageElement img = query("#s-$y-$x")
-	//// 			img.src = pieceColors[g.curPiece].src
-	//// 			g.board[y][x] = -g.curPiece
-	//// 		}
-	//// 		x := g.xToErase[k]
-	//// 		y := g.yToErase[k]
-	//// 		if g.board[y][x] == 0 {
-	//// 			ImageElement img = query("#s-$y-$x")
-	//// 			img.src = pieceColors[0].src
-	//// 		}
-	//// 	}
+// Place the piece in the board.
+func (g *Game) placePiece() {
+	for k := 0; k < numSquares; k++ {
+		x := g.curX + g.dx[k]
+		y := g.curY + g.dy[k]
+		if 0 <= y && y < boardHeight && 0 <= x && x < boardWidth && g.board[y][x] != -g.curPiece {
+			g.board[y][x] = -g.curPiece
+		}
+	}
 }
 
 // The user pressed the 's' key to start the game.
@@ -357,7 +350,7 @@ func (g *Game) start() {
 		return
 	}
 	g.getPiece()
-	g.drawPiece()
+	g.placePiece()
 	g.gameStarted = true
 	g.gamePaused = false
 	g.resetFallingTimer()
@@ -385,7 +378,7 @@ func (g *Game) moveLeft() {
 	if g.pieceFits(g.curX-1, g.curY) {
 		g.erasePiece()
 		g.curX--
-		g.drawPiece()
+		g.placePiece()
 	}
 }
 
@@ -400,7 +393,7 @@ func (g *Game) moveRight() {
 	//// 	if g.pieceFits(g.curX + 1, g.curY) {
 	//// 		g.erasePiece()
 	//// 		g.curX++
-	//// 		g.drawPiece()
+	//// 		g.placePiece()
 	//// 	}
 }
 
@@ -418,7 +411,7 @@ func (g *Game) rotate() {
 	//// 			g.dx[k] = g.dxPrime[k]
 	//// 			g.dy[k] = g.dyPrime[k]
 	//// 		}
-	//// 		g.drawPiece()
+	//// 		g.placePiece()
 	//// 	}
 }
 
@@ -433,7 +426,7 @@ func (g *Game) moveDown() bool {
 	//// 	if g.pieceFits(g.curX, g.curY + 1) {
 	//// 		g.erasePiece()
 	//// 		g.curY++
-	//// 		g.drawPiece()
+	//// 		g.placePiece()
 	//// 		return true
 	//// 	}
 	return false
@@ -452,7 +445,7 @@ func (g *Game) getPiece() bool {
 	//// 		g.dyPrime[k] = g.dy[k]
 	//// 	}
 	//// 	if g.pieceFits(g.curX, g.curY) {
-	//// 		g.drawPiece()
+	//// 		g.placePiece()
 	//// 		return true
 	//// 	}
 	return false
@@ -478,7 +471,7 @@ func (g *Game) resume() {
 //// 	while g.pieceFits(g.curX, g.curY + 1) {
 //// 		g.curY++
 //// 	}
-//// 	g.drawPiece()
+//// 	g.placePiece()
 //// 	g.resetFallingTimer()
 //// }
 ////
