@@ -128,10 +128,10 @@ func (g *Game) resetGame() {
 	g.numLines = 0
 
 	g.board = make([][]int, boardHeight)
-	for i := 0; i < boardHeight; i++ {
-		g.board[i] = make([]int, boardWidth)
-		for j := 0; j < boardWidth; j++ {
-			g.board[i][j] = 0
+	for y := 0; y < boardHeight; y++ {
+		g.board[y] = make([]int, boardWidth)
+		for x := 0; x < boardWidth; x++ {
+			g.board[y][x] = 0
 		}
 	}
 
@@ -227,13 +227,13 @@ func (g *Game) drawBoard() {
 			termbox.SetCell(boardStartX+x, boardStartY+y, ' ', cellColor, cellColor)
 		}
 	}
-	for i, instruction := range instructions {
+	for y, instruction := range instructions {
 		if strings.HasPrefix(instruction, "Level:") {
 			instruction = fmt.Sprintf(instruction, g.curLevel)
 		} else if strings.HasPrefix(instruction, "Lines:") {
 			instruction = fmt.Sprintf(instruction, g.numLines)
 		}
-		tbprint(instructionsStartX, instructionsStartY+i, instructionsColor, backgroundColor, instruction)
+		tbprint(instructionsStartX, instructionsStartY+y, instructionsColor, backgroundColor, instruction)
 	}
 	termbox.Flush()
 }
@@ -357,25 +357,25 @@ func (g *Game) drawBoard() {
 //// }
 ////
 //// func (g *Game) removeLines() {
-//// 	for i := 0; i < g.boardHeight; i++ {
+//// 	for y := 0; y < g.boardHeight; y++ {
 //// 		gapFound := false
-//// 		for j := 0; j < g.boardWidth; j++ {
-//// 			if g.board[i][j] == 0 {
+//// 		for x := 0; x < g.boardWidth; x++ {
+//// 			if g.board[y][x] == 0 {
 //// 				gapFound = true
 //// 				break
 //// 			}
 //// 		}
 //// 		if !gapFound {
-//// 			for k := i; k >= g.skyline; k-- {
-//// 				for j = 0; j < g.boardWidth; j++ {
-//// 					g.board[k][j] = g.board[k - 1][j]
-//// 					ImageElement img = query("#s-$k-$j")
-//// 					img.src = pieceColors[g.board[k][j]].src
+//// 			for k := y; k >= g.skyline; k-- {
+//// 				for x = 0; x < g.boardWidth; x++ {
+//// 					g.board[k][x] = g.board[k - 1][x]
+//// 					ImageElement img = query("#s-$k-$x")
+//// 					img.src = pieceColors[g.board[k][x]].src
 //// 				}
 //// 			}
-//// 			for j := 0; j < g.boardWidth; j++ {
-//// 				g.board[0][j] = 0
-//// 				ImageElement img = query("#s-0-$j")
+//// 			for x := 0; x < g.boardWidth; x++ {
+//// 				g.board[0][x] = 0
+//// 				ImageElement img = query("#s-0-$x")
 //// 				img.src = pieceColors[0].src
 //// 			}
 //// 			g.numLines++
