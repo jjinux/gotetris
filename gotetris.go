@@ -242,67 +242,68 @@ func (g *Game) drawBoard() {
 	termbox.Flush()
 }
 
+// This gets called everytime g.fallingTimer goes off.
 func (g *Game) play() {
-	//// 	if g.moveDown() {
-	//// 		g.resetFallingTimer()
-	//// 	} else {
-	//// 		g.fillMatrix()
-	//// 		g.removeLines()
-	//// 		if g.skyline > 0 && g.getPiece() {
-	//// 			g.resetFallingTimer()
-	//// 		} else {
-	//// 			g.gameOver = true
+	if g.moveDown() {
+		g.resetFallingTimer()
+	} else {
+		g.fillMatrix()
+		g.removeLines()
+		if g.skyline > 0 && g.getPiece() {
+			g.resetFallingTimer()
+		} else {
+			g.gameOver = true
+		}
+	}
+}
+
+func (g *Game) fillMatrix() {
+	//// 	for k := 0; k < numSquares; k++ {
+	//// 		x := g.curX + g.dx[k]
+	//// 		y := g.curY + g.dy[k]
+	//// 		if 0 <= y && y < g.boardHeight && 0 <= x && x < g.boardWidth {
+	//// 			g.board[y][x] = g.curPiece
+	//// 			if y < g.skyline {
+	//// 				g.skyline = y
+	//// 			}
 	//// 		}
 	//// 	}
 }
 
-//// func (g *Game) fillMatrix() {
-//// 	for k := 0; k < numSquares; k++ {
-//// 		x := g.curX + g.dx[k]
-//// 		y := g.curY + g.dy[k]
-//// 		if 0 <= y && y < g.boardHeight && 0 <= x && x < g.boardWidth {
-//// 			g.board[y][x] = g.curPiece
-//// 			if y < g.skyline {
-//// 				g.skyline = y
-//// 			}
-//// 		}
-//// 	}
-//// }
-////
-//// func (g *Game) removeLines() {
-//// 	for y := 0; y < g.boardHeight; y++ {
-//// 		gapFound := false
-//// 		for x := 0; x < g.boardWidth; x++ {
-//// 			if g.board[y][x] == 0 {
-//// 				gapFound = true
-//// 				break
-//// 			}
-//// 		}
-//// 		if !gapFound {
-//// 			for k := y; k >= g.skyline; k-- {
-//// 				for x = 0; x < g.boardWidth; x++ {
-//// 					g.board[k][x] = g.board[k - 1][x]
-//// 					ImageElement img = query("#s-$k-$x")
-//// 					img.src = pieceColors[g.board[k][x]].src
-//// 				}
-//// 			}
-//// 			for x := 0; x < g.boardWidth; x++ {
-//// 				g.board[0][x] = 0
-//// 				ImageElement img = query("#s-0-$x")
-//// 				img.src = pieceColors[0].src
-//// 			}
-//// 			g.numLines++
-//// 			g.skyline++
-//// 			InputElement g.numLinesField = query("#num-lines")
-//// 			g.numLinesField.value = g.numLines.toString()
-//// 			if g.numLines % rowsPerLevel == 0 && g.curLevel < maxLevel {
-//// 				g.curLevel++
-//// 			}
-//// 			SelectElement levelSelect = query("#level-select")
-//// 			levelSelect.selectedIndex = g.curLevel - 1
-//// 		}
-//// 	}
-//// }
+func (g *Game) removeLines() {
+	//// 	for y := 0; y < g.boardHeight; y++ {
+	//// 		gapFound := false
+	//// 		for x := 0; x < g.boardWidth; x++ {
+	//// 			if g.board[y][x] == 0 {
+	//// 				gapFound = true
+	//// 				break
+	//// 			}
+	//// 		}
+	//// 		if !gapFound {
+	//// 			for k := y; k >= g.skyline; k-- {
+	//// 				for x = 0; x < g.boardWidth; x++ {
+	//// 					g.board[k][x] = g.board[k - 1][x]
+	//// 					ImageElement img = query("#s-$k-$x")
+	//// 					img.src = pieceColors[g.board[k][x]].src
+	//// 				}
+	//// 			}
+	//// 			for x := 0; x < g.boardWidth; x++ {
+	//// 				g.board[0][x] = 0
+	//// 				ImageElement img = query("#s-0-$x")
+	//// 				img.src = pieceColors[0].src
+	//// 			}
+	//// 			g.numLines++
+	//// 			g.skyline++
+	//// 			InputElement g.numLinesField = query("#num-lines")
+	//// 			g.numLinesField.value = g.numLines.toString()
+	//// 			if g.numLines % rowsPerLevel == 0 && g.curLevel < maxLevel {
+	//// 				g.curLevel++
+	//// 			}
+	//// 			SelectElement levelSelect = query("#level-select")
+	//// 			levelSelect.selectedIndex = g.curLevel - 1
+	//// 		}
+	//// 	}
+}
 
 func (g *Game) pieceFits(x, y int) bool {
 	//// 	for k := 0; k < numSquares; k++ {
@@ -425,7 +426,7 @@ func (g *Game) rotate() {
 	//// 	}
 }
 
-func (g *Game) moveDown() {
+func (g *Game) moveDown() bool {
 	//// 	if !g.gameStarted || g.gamePaused {
 	////		return
 	////	}
@@ -439,7 +440,7 @@ func (g *Game) moveDown() {
 	//// 		g.drawPiece()
 	//// 		return true
 	//// 	}
-	//// 	return false
+	return false
 }
 
 func (g *Game) getPiece() bool {
