@@ -271,39 +271,32 @@ func (g *Game) fillMatrix() {
 	}
 }
 
+// Look for completed lines and remove them.
 func (g *Game) removeLines() {
-	//// 	for y := 0; y < g.boardHeight; y++ {
-	//// 		gapFound := false
-	//// 		for x := 0; x < g.boardWidth; x++ {
-	//// 			if g.board[y][x] == 0 {
-	//// 				gapFound = true
-	//// 				break
-	//// 			}
-	//// 		}
-	//// 		if !gapFound {
-	//// 			for k := y; k >= g.skyline; k-- {
-	//// 				for x = 0; x < g.boardWidth; x++ {
-	//// 					g.board[k][x] = g.board[k - 1][x]
-	//// 					ImageElement img = query("#s-$k-$x")
-	//// 					img.src = pieceColors[g.board[k][x]].src
-	//// 				}
-	//// 			}
-	//// 			for x := 0; x < g.boardWidth; x++ {
-	//// 				g.board[0][x] = 0
-	//// 				ImageElement img = query("#s-0-$x")
-	//// 				img.src = pieceColors[0].src
-	//// 			}
-	//// 			g.numLines++
-	//// 			g.skyline++
-	//// 			InputElement g.numLinesField = query("#num-lines")
-	//// 			g.numLinesField.value = g.numLines.toString()
-	//// 			if g.numLines % rowsPerLevel == 0 && g.curLevel < maxLevel {
-	//// 				g.curLevel++
-	//// 			}
-	//// 			SelectElement levelSelect = query("#level-select")
-	//// 			levelSelect.selectedIndex = g.curLevel - 1
-	//// 		}
-	//// 	}
+	for y := 0; y < boardHeight; y++ {
+		gapFound := false
+		for x := 0; x < boardWidth; x++ {
+			if g.board[y][x] == 0 {
+				gapFound = true
+				break
+			}
+		}
+		if !gapFound {
+			for k := y; k >= g.skyline; k-- {
+				for x := 0; x < boardWidth; x++ {
+					g.board[k][x] = g.board[k-1][x]
+				}
+			}
+			for x := 0; x < boardWidth; x++ {
+				g.board[0][x] = 0
+			}
+			g.numLines++
+			g.skyline++
+			if g.numLines%rowsPerLevel == 0 && g.curLevel < maxLevel {
+				g.curLevel++
+			}
+		}
+	}
 }
 
 func (g *Game) pieceFits(x, y int) bool {
