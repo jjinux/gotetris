@@ -299,17 +299,18 @@ func (g *Game) removeLines() {
 	}
 }
 
+// Return whether or not a piece fits.
 func (g *Game) pieceFits(x, y int) bool {
-	//// 	for k := 0; k < numSquares; k++ {
-	//// 		theX := x + g.dxPrime[k]
-	//// 		theY := y + g.dyPrime[k]
-	//// 		if theX < 0 || theX >= g.boardWidth || theY >= g.boardHeight {
-	//// 			return false
-	//// 		}
-	//// 		if theY > -1 && g.board[theY][theX] > 0 {
-	//// 			return false
-	//// 		}
-	//// 	}
+	for k := 0; k < numSquares; k++ {
+		theX := x + g.dxPrime[k]
+		theY := y + g.dyPrime[k]
+		if theX < 0 || theX >= boardWidth || theY >= boardHeight {
+			return false
+		}
+		if theY > -1 && g.board[theY][theX] > 0 {
+			return false
+		}
+	}
 	return true
 }
 
