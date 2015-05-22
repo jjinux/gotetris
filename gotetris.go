@@ -20,7 +20,7 @@ import (
 // Colors
 const backgroundColor = termbox.ColorBlue
 const boardColor = termbox.ColorBlack
-const instructionsColor = termbox.ColorWhite
+const instructionsColor = termbox.ColorYellow
 
 var pieceColors = []termbox.Attribute{
 	termbox.ColorBlack,
@@ -90,7 +90,6 @@ type Game struct {
 	gameStarted bool
 	timer       *time.Timer
 	numLines    int
-	speed       int
 	board       [][]int // [y][x]
 	xToErase    []int
 	yToErase    []int
@@ -111,90 +110,12 @@ type Game struct {
 	timerDown     *time.Timer
 }
 
-func tbprint(x, y int, fg, bg termbox.Attribute, msg string) {
-	for _, c := range msg {
-		termbox.SetCell(x, y, c, fg, bg)
-		x++
-	}
-}
-
-func draw() {
-	termbox.Clear(backgroundColor, backgroundColor)
-	tbprint(titleStartX, titleStartY, instructionsColor, backgroundColor, title)
-	for y := boardStartY; y < boardEndY; y++ {
-		for x := boardStartX; x < boardEndX; x++ {
-			termbox.SetCell(x, y, ' ', boardColor, boardColor)
-		}
-	}
-	for i, instruction := range instructions {
-		if strings.HasPrefix(instruction, "Level:") {
-			instruction = fmt.Sprintf(instruction, 0)
-		} else if strings.HasPrefix(instruction, "Lines:") {
-			instruction = fmt.Sprintf(instruction, 0)
-		}
-		tbprint(instructionsStartX, instructionsStartY+i, instructionsColor, backgroundColor, instruction)
-	}
-	termbox.Flush()
-}
-
-func main() {
-	err := termbox.Init()
-	if err != nil {
-		panic(err)
-	}
-	defer termbox.Close()
-
-	eventQueue := make(chan termbox.Event)
-	go func() {
-		for {
-			eventQueue <- termbox.PollEvent()
-		}
-	}()
-
-	NewGame()
-
-	draw()
-
-loop:
-	for {
-		select {
-		case ev := <-eventQueue:
-			if ev.Type == termbox.EventKey && ev.Key == termbox.KeyEsc {
-				break loop
-			}
-
-			//// 	document.on.keyDown.add(g.onKeyDown)
-			//// 	document.on.keyUp.add(onKeyUp)
-			////
-			//// 	SelectElement levelSelect = query("#level-select")
-			//// 	levelSelect.on.change.add((Event e) {
-			//// 		g.onLevelSelectChange()
-			//// 		levelSelect.blur()
-			//// 	})
-			////
-			//// 	InputElement startButton = query("#start-button")
-			//// 	InputElement pauseButton = query("#pause-button")
-			//// 	startButton.on.click.add((event) => g.start())
-			//// 	pauseButton.on.click.add((event) => g.pause())
-
-		default:
-			draw()
-			time.Sleep(10 * time.Millisecond)
-		}
-	}
-}
-
+// NewGame returns a fully-initialized game.
 func NewGame() (g *Game) {
 	g = new(Game)
 
-	g.curLevel = defaultLevel
 	g.curX = 1
 	g.curY = 1
-	g.skyline = boardHeight - 1
-	g.gamePaused = false
-	g.gameStarted = false
-	g.numLines = 0
-	g.speed = slowestSpeed - fastestSpeed*defaultLevel
 
 	// Keystroke processing
 	g.isActiveLeft = false
@@ -205,9 +126,6 @@ func NewGame() (g *Game) {
 	g.board = make([][]int, boardHeight)
 	for i := 0; i < boardHeight; i++ {
 		g.board[i] = make([]int, boardWidth)
-		for j := 0; j < boardWidth; j++ {
-			g.board[i][j] = 0
-		}
 	}
 
 	g.xToErase = []int{0, 0, 0, 0}
@@ -239,14 +157,57 @@ func NewGame() (g *Game) {
 		{0, 0, 1, 1},
 	}
 
+	g.resetGame()
+
 	return
 }
 
-//// func (g *Game) run() {
-//// 	g.drawBoard()
-//// 	g.resetGame()
-//// }
-////
+// Reset the game in order to play again.
+func (g *Game) resetGame() {
+	for i := 0; i < boardHeight; i++ {
+		for j := 0; j < boardWidth; j++ {
+			g.board[i][j] = 0
+		}
+	}
+
+	g.gameStarted = false
+	g.gamePaused = false
+	g.numLines = 0
+	g.curLevel = 1
+	g.skyline = boardHeight - 1
+}
+
+// Function run draws everything and starts handling events.
+func (g *Game) Run() {
+	g.resetGame()
+	g.drawBoard()
+
+	eventQueue := make(chan termbox.Event)
+	go func() {
+		for {
+			eventQueue <- termbox.PollEvent()
+		}
+	}()
+
+loop:
+	for {
+		select {
+		case ev := <-eventQueue:
+			if ev.Type == termbox.EventKey && ev.Key == termbox.KeyEsc {
+				break loop
+			}
+		default:
+			g.drawBoard()
+			time.Sleep(10 * time.Millisecond)
+		}
+	}
+}
+
+// Function speed calculates the speed based on the curLevel.
+func (g *Game) speed() int {
+	return slowestSpeed - fastestSpeed*g.curLevel
+}
+
 //// func (g *Game) start() {
 //// 	if g.gameStarted {
 //// 		if g.gamePaused {
@@ -260,69 +221,37 @@ func NewGame() (g *Game) {
 //// 	g.gamePaused = false
 //// 	InputElement g.numLinesField = query("#num-lines")
 //// 	g.numLinesField.value = g.numLines.toString()
-//// 	g.timer = new(Timer(g.speed, (timer) => g.play()))
+//// 	g.timer = new(Timer(g.speed(), (timer) => g.play()))
 //// }
-////
-//// func (g *Game) drawBoard() {
-//// 	DivElement g.boardDiv = query("#g.board-div")
-//// 	pre := new(Element.tag("pre"))
-//// 	g.boardDiv.nodes.add(pre)
-//// 	pre.classes.add("g.board")
-//// 	for i := 0; i < g.boardHeight; i++ {
-//// 		div := new(Element.tag("div"))
-//// 		pre.nodes.add(div)
-//// 		for j := 0; j < g.boardWidth; j++ {
-//// 			img := new(Element.tag("img"))
-//// 			div.nodes.add(img)
-//// 			img.id = "s-$i-$j"
-//// 			img.src = "images/s${g.board[i][j].abs()}.png"
-//// 		}
-//// 		rightMargin := new(Element.tag("img"))
-//// 		div.nodes.add(rightMargin)
-//// 		rightMargin.src = "images/g.png"
-//// 		rightMargin.width = 1
-//// 	}
-//// 	trailingDiv = new(Element.tag("div"))
-//// 	pre.nodes.add(trailingDiv)
-//// 	trailingImg = new(Element.tag("img"))
-//// 	trailingDiv.nodes.add(trailingImg)
-//// 	trailingImg.src = "images/g.png"
-//// 	trailingImg.id = "g.board-trailing-img"
-//// 	trailingImg.width = g.boardWidth * 16 + 1
-//// 	trailingImg.height = 1
-//// }
-////
-//// func (g *Game) resetGame() {
-//// 	for i := 0; i < g.boardHeight; i++ {
-//// 		for j := 0; j < g.boardWidth; j++ {
-//// 			g.board[i][j] = 0
-//// 			ImageElement img = query("#s-$i-$j")
-//// 			img.src = "images/s0.png"
-//// 		}
-//// 	}
-//// 	g.gameStarted = false
-//// 	g.gamePaused = false
-//// 	g.numLines = 0
-//// 	g.curLevel = 1
-//// 	g.skyline = g.boardHeight - 1
-//// 	InputElement g.numLinesField = query("#num-lines")
-//// 	g.numLinesField.value = g.numLines.toString()
-//// 	SelectElement levelSelect = query("#level-select")
-//// 	levelSelect.selectedIndex = 0
-////
-//// 	// I shouldn"t have to call this manually, but I do.
-//// 	// See: http://code.google.com/p/dart/issues/detail?id=2325&thanks=2325&ts=1332879888
-//// 	g.onLevelSelectChange()
-//// }
-////
+
+func (g *Game) drawBoard() {
+	termbox.Clear(backgroundColor, backgroundColor)
+	tbprint(titleStartX, titleStartY, instructionsColor, backgroundColor, title)
+	for y := 0; y < boardHeight; y++ {
+		for x := 0; x < boardWidth; x++ {
+			cellColor := pieceColors[g.board[y][x]]
+			termbox.SetCell(boardStartX+x, boardStartY+y, ' ', cellColor, cellColor)
+		}
+	}
+	for i, instruction := range instructions {
+		if strings.HasPrefix(instruction, "Level:") {
+			instruction = fmt.Sprintf(instruction, g.curLevel)
+		} else if strings.HasPrefix(instruction, "Lines:") {
+			instruction = fmt.Sprintf(instruction, g.numLines)
+		}
+		tbprint(instructionsStartX, instructionsStartY+i, instructionsColor, backgroundColor, instruction)
+	}
+	termbox.Flush()
+}
+
 //// func (g *Game) play() {
 //// 	if g.moveDown() {
-//// 		g.timer = new(Timer(g.speed, (timer) => g.play()))
+//// 		g.timer = new(Timer(g.speed(), (timer) => g.play()))
 //// 	} else {
 //// 		g.fillMatrix()
 //// 		g.removeLines()
 //// 		if g.skyline > 0 && g.getPiece() {
-//// 			g.timer = new(Timer(g.speed, (timer) => g.play()))
+//// 			g.timer = new(Timer(g.speed(), (timer) => g.play()))
 //// 		} else {
 //// 			g.isActiveLeft = false
 //// 			g.isActiveUp = false
@@ -462,7 +391,6 @@ func NewGame() (g *Game) {
 //// 			if g.numLines % rowsPerLevel == 0 && g.curLevel < maxLevel {
 //// 				g.curLevel++
 //// 			}
-//// 			g.speed = slowestSpeed - fastestSpeed * g.curLevel
 //// 			SelectElement levelSelect = query("#level-select")
 //// 			levelSelect.selectedIndex = g.curLevel - 1
 //// 		}
@@ -577,13 +505,6 @@ func NewGame() (g *Game) {
 //// 	}
 //// }
 ////
-//// func (g *Game) onLevelSelectChange() {
-//// 	SelectElement levelSelect = query("#level-select")
-//// 	OptionElement selectedOption = levelSelect.options[levelSelect.selectedIndex]
-//// 	g.curLevel = int.parse(selectedOption.value)
-//// 	g.speed = slowestSpeed - fastestSpeed * g.curLevel
-//// }
-////
 //// func (g *Game) rotate() {
 //// 	for k := 0; k < numSquares; k++ {
 //// 		g.dxPrime[k] = g.dy[k]
@@ -613,7 +534,7 @@ func NewGame() (g *Game) {
 //// 		g.curY++
 //// 	}
 //// 	g.drawPiece()
-//// 	g.timer = new(Timer(g.speed, (timer) => g.play()))
+//// 	g.timer = new(Timer(g.speed(), (timer) => g.play()))
 //// }
 ////
 //// func (g *Game) slideLeft() {
@@ -642,7 +563,22 @@ func NewGame() (g *Game) {
 //// 	p.text = message
 //// 	document.body.nodes.add(p)
 //// }
-////
-//// void main() {
-//// 	new(Game).run()
-//// }////
+
+// Function tbprint draws a string.
+func tbprint(x, y int, fg, bg termbox.Attribute, msg string) {
+	for _, c := range msg {
+		termbox.SetCell(x, y, c, fg, bg)
+		x++
+	}
+}
+
+// Function main initializes termbox and runs a new Game.
+func main() {
+	err := termbox.Init()
+	if err != nil {
+		panic(err)
+	}
+	defer termbox.Close()
+
+	NewGame().Run()
+}
