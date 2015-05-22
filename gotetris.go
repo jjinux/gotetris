@@ -76,10 +76,6 @@ const rowsPerLevel = 5
 const slowestSpeed = 700
 const fastestSpeed = 60
 
-// Keystroke processing
-const initialDelay = 200
-const repeatDelay = 20
-
 type Game struct {
 	curLevel    int
 	curX        int
@@ -99,15 +95,6 @@ type Game struct {
 	dyPrime     []int
 	dxBank      [][]int
 	dyBank      [][]int
-
-	// Keystroke processing
-	isActiveLeft  bool
-	isActiveRight bool
-	isActiveUp    bool
-	isActiveDown  bool
-	timerLeft     *time.Timer
-	timerRight    *time.Timer
-	timerDown     *time.Timer
 }
 
 // NewGame returns a fully-initialized game.
@@ -163,12 +150,6 @@ func (g *Game) resetGame() {
 		{0, 0, 0, 0},
 		{0, 0, 1, 1},
 	}
-
-	// Keystroke processing
-	g.isActiveLeft = false
-	g.isActiveRight = false
-	g.isActiveUp = false
-	g.isActiveDown = false
 }
 
 // Function run draws everything and starts handling events.
@@ -247,10 +228,6 @@ func (g *Game) drawBoard() {
 //// 		if g.skyline > 0 && g.getPiece() {
 //// 			g.timer = new(Timer(g.speed(), (timer) => g.play()))
 //// 		} else {
-//// 			g.isActiveLeft = false
-//// 			g.isActiveUp = false
-//// 			g.isActiveRight = false
-//// 			g.isActiveDown = false
 //// 			window.alert("Game over!")
 //// 			g.resetGame()
 //// 		}
@@ -282,61 +259,15 @@ func (g *Game) drawBoard() {
 //// 	}
 ////
 //// 	if leftNN.indexOf(keyNN) != -1 || leftIE.indexOf(keyIE) != -1 {
-//// 		if !g.isActiveLeft {
-//// 			g.isActiveLeft = true
-//// 			g.isActiveRight = false
-//// 			g.moveLeft()
-//// 			g.timerLeft = new(Timer(initialDelay, (timer) => g.slideLeft()))
-//// 		}
+//// 		g.moveLeft()
 //// 	} else if rightNN.indexOf(keyNN) != -1 || rightIE.indexOf(keyIE) != -1 {
-//// 		if !g.isActiveRight {
-//// 			g.isActiveRight = true
-//// 			g.isActiveLeft = false
-//// 			g.moveRight()
-//// 			g.timerRight = new(Timer(initialDelay, (timer) => g.slideRight()))
-//// 		}
+//// 		g.moveRight()
 //// 	} else if upNN.indexOf(keyNN) != -1 || upIE.indexOf(keyIE) != -1 {
-//// 		if !g.isActiveUp {
-//// 			g.isActiveUp = true
-//// 			g.isActiveDown = false
-//// 			g.rotate()
-//// 		}
+//// 		g.rotate()
 //// 	} else if spaceNN.indexOf(keyNN) != -1 || spaceIE.indexOf(keyIE) != -1 {
-//// 		if !g.isActiveSpace {
-//// 			g.isActiveSpace = true
-//// 			g.isActiveDown = false
-//// 			g.fall()
-//// 		}
+//// 		g.fall()
 //// 	} else if downNN.indexOf(keyNN) != -1 || downIE.indexOf(keyIE) != -1 {
-//// 		if !g.isActiveDown {
-//// 			g.isActiveDown = true
-//// 			g.isActiveUp = false
-//// 			g.moveDown()
-//// 			g.timerDown = new(Timer(initialDelay, (timer) => g.slideDown()))
-//// 		}
-//// 	} else {
-//// 		return
-//// 	}
-//// 	event.preventDefault()
-//// }
-////
-//// func (g *Game) onKeyUp(event KeyboardEvent) {
-//// 	// See comments in g.onKeyDown.
-//// 	keyNN := " ${event.keyCode} "
-//// 	keyIE := " ${event.keyCode} "
-//// 	if leftNN.indexOf(keyNN) != -1 || leftIE.indexOf(keyIE) != -1 {
-//// 		g.isActiveLeft = false
-//// 		g.timerLeft.cancel()
-//// 	} else if rightNN.indexOf(keyNN) != -1 || rightIE.indexOf(keyIE) != -1 {
-//// 		g.isActiveRight = false
-//// 		g.timerRight.cancel()
-//// 	} else if upNN.indexOf(keyNN) != -1 || upIE.indexOf(keyIE) != -1 {
-//// 		g.isActiveUp = false
-//// 	} else if downNN.indexOf(keyNN) != -1 || downIE.indexOf(keyIE) != -1 {
-//// 		g.isActiveDown = false
-//// 		g.timerDown.cancel()
-//// 	} else if spaceNN.indexOf(keyNN) != -1 || spaceIE.indexOf(keyIE) != -1 {
-//// 		g.isActiveSpace = false
+//// 		g.moveDown()
 //// 	} else {
 //// 		return
 //// 	}
@@ -529,27 +460,6 @@ func (g *Game) drawBoard() {
 //// 	}
 //// 	g.drawPiece()
 //// 	g.timer = new(Timer(g.speed(), (timer) => g.play()))
-//// }
-////
-//// func (g *Game) slideLeft() {
-//// 	if g.isActiveLeft {
-//// 		g.moveLeft()
-//// 		g.timerLeft = new(Timer(repeatDelay, (timer) => g.slideLeft()))
-//// 	}
-//// }
-////
-//// func (g *Game) slideRight() {
-//// 	if g.isActiveRight {
-//// 		g.moveRight()
-//// 		g.timerRight = new(Timer(repeatDelay, (timer) => g.slideRight()))
-//// 	}
-//// }
-////
-//// func (g *Game) slideDown() {
-//// 	if g.isActiveDown {
-//// 		g.moveDown()
-//// 		g.timerDown = new(Timer(repeatDelay, (timer) => g.slideDown()))
-//// 	}
 //// }
 ////
 //// func (g *Game) write(String message) {
