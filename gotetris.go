@@ -314,16 +314,17 @@ func (g *Game) pieceFits(x, y int) bool {
 	return true
 }
 
+// This gets called when a piece moves to a new location.
 func (g *Game) erasePiece() {
-	//// 	for k := 0; k < numSquares; k++ {
-	//// 		x := g.curX + g.dx[k]
-	//// 		y := g.curY + g.dy[k]
-	//// 		if 0 <= y && y < g.boardHeight && 0 <= x && x < g.boardWidth {
-	//// 			g.xToErase[k] = x
-	//// 			g.yToErase[k] = y
-	//// 			g.board[y][x] = 0
-	//// 		}
-	//// 	}
+	for k := 0; k < numSquares; k++ {
+		x := g.curX + g.dx[k]
+		y := g.curY + g.dy[k]
+		if 0 <= y && y < boardHeight && 0 <= x && x < boardWidth {
+			g.xToErase[k] = x
+			g.yToErase[k] = y
+			g.board[y][x] = 0
+		}
+	}
 }
 
 func (g *Game) drawPiece() {
