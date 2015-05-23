@@ -17,6 +17,8 @@ import (
 	"github.com/nsf/termbox-go"
 )
 
+const animationSpeed = 10 * time.Millisecond
+
 // Function main initializes termbox, renders the view, and starts
 // handling events.
 func main() {

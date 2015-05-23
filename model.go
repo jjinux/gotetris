@@ -6,7 +6,6 @@ import (
 )
 
 // Speeds
-const animationSpeed = 10 * time.Millisecond
 const slowestSpeed = 700 * time.Millisecond
 const fastestSpeed = 60 * time.Millisecond
 
