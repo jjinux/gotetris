@@ -75,7 +75,7 @@ func render(g *Game) {
 	}
 	for y, instruction := range instructions {
 		if strings.HasPrefix(instruction, "Level:") {
-			instruction = fmt.Sprintf(instruction, g.curLevel)
+			instruction = fmt.Sprintf(instruction, g.level)
 		} else if strings.HasPrefix(instruction, "Lines:") {
 			instruction = fmt.Sprintf(instruction, g.numLines)
 		} else if strings.HasPrefix(instruction, "GAME OVER") && g.state != gameOver {

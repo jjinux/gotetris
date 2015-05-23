@@ -50,18 +50,18 @@ const (
 
 // Struct Game contains all the game state.
 type Game struct {
-	curLevel     int
-	curX         int
-	curY         int
-	curPiece     int
-	skyline      int
-	state        gameState
-	numLines     int
 	board        [][]int // [y][x]
+	state        gameState
+	level        int
+	numLines     int
+	piece        int
+	x            int
+	y            int
 	dx           []int
 	dy           []int
 	dxPrime      []int
 	dyPrime      []int
+	skyline      int
 	fallingTimer *time.Timer
 }
 
@@ -74,13 +74,6 @@ func NewGame() *Game {
 
 // Reset the game in order to play again.
 func (g *Game) resetGame() {
-	g.curLevel = 1
-	g.curX = 1
-	g.curY = 1
-	g.skyline = boardHeight - 1
-	g.state = gameIntro
-	g.numLines = 0
-
 	g.board = make([][]int, boardHeight)
 	for y := 0; y < boardHeight; y++ {
 		g.board[y] = make([]int, boardWidth)
@@ -89,10 +82,17 @@ func (g *Game) resetGame() {
 		}
 	}
 
+	g.state = gameIntro
+	g.level = 1
+	g.numLines = 0
+	g.x = 1
+	g.y = 1
 	g.dx = []int{0, 0, 0, 0}
 	g.dy = []int{0, 0, 0, 0}
 	g.dxPrime = []int{0, 0, 0, 0}
 	g.dyPrime = []int{0, 0, 0, 0}
+	g.skyline = boardHeight - 1
+
 	g.fallingTimer = time.NewTimer(time.Duration(1000000 * time.Second))
 	g.fallingTimer.Stop()
 }
@@ -102,9 +102,9 @@ func (g *Game) resetFallingTimer() {
 	g.fallingTimer.Reset(g.speed())
 }
 
-// Function speed calculates the speed based on the curLevel.
+// Function speed calculates the speed based on the level.
 func (g *Game) speed() time.Duration {
-	return slowestSpeed - fastestSpeed*time.Duration(g.curLevel)
+	return slowestSpeed - fastestSpeed*time.Duration(g.level)
 }
 
 // This gets called everytime g.fallingTimer goes off.
@@ -125,10 +125,10 @@ func (g *Game) play() {
 // This gets called as part of the piece falling.
 func (g *Game) fillMatrix() {
 	for k := 0; k < numSquares; k++ {
-		x := g.curX + g.dx[k]
-		y := g.curY + g.dy[k]
+		x := g.x + g.dx[k]
+		y := g.y + g.dy[k]
 		if 0 <= y && y < boardHeight && 0 <= x && x < boardWidth {
-			g.board[y][x] = g.curPiece
+			g.board[y][x] = g.piece
 			if y < g.skyline {
 				g.skyline = y
 			}
@@ -157,8 +157,8 @@ func (g *Game) removeLines() {
 			}
 			g.numLines++
 			g.skyline++
-			if g.numLines%rowsPerLevel == 0 && g.curLevel < maxLevel {
-				g.curLevel++
+			if g.numLines%rowsPerLevel == 0 && g.level < maxLevel {
+				g.level++
 			}
 		}
 	}
@@ -182,8 +182,8 @@ func (g *Game) pieceFits(x, y int) bool {
 // This gets called when a piece moves to a new location.
 func (g *Game) erasePiece() {
 	for k := 0; k < numSquares; k++ {
-		x := g.curX + g.dx[k]
-		y := g.curY + g.dy[k]
+		x := g.x + g.dx[k]
+		y := g.y + g.dy[k]
 		if 0 <= y && y < boardHeight && 0 <= x && x < boardWidth {
 			g.board[y][x] = 0
 		}
@@ -193,10 +193,10 @@ func (g *Game) erasePiece() {
 // Place the piece in the board.
 func (g *Game) placePiece() {
 	for k := 0; k < numSquares; k++ {
-		x := g.curX + g.dx[k]
-		y := g.curY + g.dy[k]
-		if 0 <= y && y < boardHeight && 0 <= x && x < boardWidth && g.board[y][x] != -g.curPiece {
-			g.board[y][x] = -g.curPiece
+		x := g.x + g.dx[k]
+		y := g.y + g.dy[k]
+		if 0 <= y && y < boardHeight && 0 <= x && x < boardWidth && g.board[y][x] != -g.piece {
+			g.board[y][x] = -g.piece
 		}
 	}
 }
@@ -240,9 +240,9 @@ func (g *Game) moveLeft() {
 		g.dxPrime[k] = g.dx[k]
 		g.dyPrime[k] = g.dy[k]
 	}
-	if g.pieceFits(g.curX-1, g.curY) {
+	if g.pieceFits(g.x-1, g.y) {
 		g.erasePiece()
-		g.curX--
+		g.x--
 		g.placePiece()
 	}
 }
@@ -256,9 +256,9 @@ func (g *Game) moveRight() {
 		g.dxPrime[k] = g.dx[k]
 		g.dyPrime[k] = g.dy[k]
 	}
-	if g.pieceFits(g.curX+1, g.curY) {
+	if g.pieceFits(g.x+1, g.y) {
 		g.erasePiece()
-		g.curX++
+		g.x++
 		g.placePiece()
 	}
 }
@@ -272,7 +272,7 @@ func (g *Game) rotate() {
 		g.dxPrime[k] = g.dy[k]
 		g.dyPrime[k] = -g.dx[k]
 	}
-	if g.pieceFits(g.curX, g.curY) {
+	if g.pieceFits(g.x, g.y) {
 		g.erasePiece()
 		for k := 0; k < numSquares; k++ {
 			g.dx[k] = g.dxPrime[k]
@@ -291,11 +291,11 @@ func (g *Game) moveDown() bool {
 		g.dxPrime[k] = g.dx[k]
 		g.dyPrime[k] = g.dy[k]
 	}
-	if !g.pieceFits(g.curX, g.curY+1) {
+	if !g.pieceFits(g.x, g.y+1) {
 		return false
 	}
 	g.erasePiece()
-	g.curY++
+	g.y++
 	g.placePiece()
 	return true
 }
@@ -309,13 +309,13 @@ func (g *Game) fall() {
 		g.dxPrime[k] = g.dx[k]
 		g.dyPrime[k] = g.dy[k]
 	}
-	if !g.pieceFits(g.curX, g.curY+1) {
+	if !g.pieceFits(g.x, g.y+1) {
 		return
 	}
 	g.fallingTimer.Stop()
 	g.erasePiece()
-	for g.pieceFits(g.curX, g.curY+1) {
-		g.curY++
+	for g.pieceFits(g.x, g.y+1) {
+		g.y++
 	}
 	g.placePiece()
 	g.resetFallingTimer()
@@ -323,18 +323,18 @@ func (g *Game) fall() {
 
 // Get a random piece and try to place it.
 func (g *Game) getPiece() bool {
-	g.curPiece = 1 + rand.Int()%numTypes
-	g.curX = boardWidth / 2
-	g.curY = 0
+	g.piece = 1 + rand.Int()%numTypes
+	g.x = boardWidth / 2
+	g.y = 0
 	for k := 0; k < numSquares; k++ {
-		g.dx[k] = dxBank[g.curPiece][k]
-		g.dy[k] = dyBank[g.curPiece][k]
+		g.dx[k] = dxBank[g.piece][k]
+		g.dy[k] = dyBank[g.piece][k]
 	}
 	for k := 0; k < numSquares; k++ {
 		g.dxPrime[k] = g.dx[k]
 		g.dyPrime[k] = g.dy[k]
 	}
-	if !g.pieceFits(g.curX, g.curY) {
+	if !g.pieceFits(g.x, g.y) {
 		return false
 	}
 	g.placePiece()
