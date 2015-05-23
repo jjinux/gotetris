@@ -2,8 +2,7 @@
 Package main contains a console-based implementation of Tetris.
 See the README for more details.
 
-I don't have any tests or that much in the way of documentation. It's
-just a simple video game ;)
+I don't have any tests. It's just a simple video game ;)
 */
 
 package main
@@ -82,6 +81,7 @@ const defaultLevel = 1
 const maxLevel = 10
 const rowsPerLevel = 5
 
+// Struct Game contains all the game state.
 type Game struct {
 	curLevel     int
 	curX         int
@@ -219,6 +219,7 @@ func (g *Game) speed() time.Duration {
 	return slowestSpeed - fastestSpeed*time.Duration(g.curLevel)
 }
 
+// This takes care of drawing everything.
 func (g *Game) drawBoard() {
 	termbox.Clear(backgroundColor, backgroundColor)
 	tbprint(titleStartX, titleStartY, instructionsColor, backgroundColor, title)
