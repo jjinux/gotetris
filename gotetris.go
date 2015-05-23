@@ -93,8 +93,6 @@ type Game struct {
 	gameOver     bool
 	numLines     int
 	board        [][]int // [y][x]
-	xToErase     []int
-	yToErase     []int
 	dx           []int
 	dy           []int
 	dxPrime      []int
@@ -130,8 +128,6 @@ func (g *Game) resetGame() {
 		}
 	}
 
-	g.xToErase = []int{0, 0, 0, 0}
-	g.yToErase = []int{0, 0, 0, 0}
 	g.dx = []int{0, 0, 0, 0}
 	g.dy = []int{0, 0, 0, 0}
 	g.dxPrime = []int{0, 0, 0, 0}
@@ -323,8 +319,6 @@ func (g *Game) erasePiece() {
 		x := g.curX + g.dx[k]
 		y := g.curY + g.dy[k]
 		if 0 <= y && y < boardHeight && 0 <= x && x < boardWidth {
-			g.xToErase[k] = x
-			g.yToErase[k] = y
 			g.board[y][x] = 0
 		}
 	}
@@ -449,12 +443,12 @@ func (g *Game) fall() {
 		g.dxPrime[k] = g.dx[k]
 		g.dyPrime[k] = g.dy[k]
 	}
-	if !g.pieceFits(g.curX, g.curY + 1) {
+	if !g.pieceFits(g.curX, g.curY+1) {
 		return
 	}
 	g.fallingTimer.Stop()
 	g.erasePiece()
-	for g.pieceFits(g.curX, g.curY + 1) {
+	for g.pieceFits(g.curX, g.curY+1) {
 		g.curY++
 	}
 	g.placePiece()
