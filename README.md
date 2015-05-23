@@ -3,7 +3,7 @@
 This is a console-based version of Tetris written in Go.
 
 ![alt text][logo]
-[logo]: https://raw.githubusercontent.com/jjinux/gotetris/master/screen_shot.md "Screen shot"
+[logo]: https://raw.githubusercontent.com/jjinux/gotetris/master/screen_shot.png "Screen shot"
 
 ## Working on the Code
 
