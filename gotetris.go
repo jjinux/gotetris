@@ -55,7 +55,7 @@ const slowestSpeed = 700 * time.Millisecond
 const fastestSpeed = 60 * time.Millisecond
 
 // Text in the UI
-const title = "Tetris Written in Go"
+const title = "TETRIS WRITTEN IN GO"
 
 var instructions = []string{
 	"Goal: Fill in 5 lines!",
@@ -191,7 +191,7 @@ func (g *Game) Run() {
 					g.rotate()
 				case ev.Key == termbox.KeyArrowDown:
 					g.moveDown()
-				case ev.Ch == ' ':
+				case ev.Key == termbox.KeySpace:
 					g.fall()
 				case ev.Ch == 's':
 					g.start()
