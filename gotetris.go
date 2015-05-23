@@ -82,6 +82,15 @@ const defaultLevel = 1
 const maxLevel = 10
 const rowsPerLevel = 5
 
+type gameState int
+
+const (
+	gameIntro gameState = iota
+	gameStarted
+	gamePaused
+	gameOver
+)
+
 // Struct Game contains all the game state.
 type Game struct {
 	curLevel     int
@@ -89,9 +98,7 @@ type Game struct {
 	curY         int
 	curPiece     int
 	skyline      int
-	gameStarted  bool
-	gamePaused   bool
-	gameOver     bool
+	state        gameState
 	numLines     int
 	board        [][]int // [y][x]
 	dx           []int
@@ -116,9 +123,7 @@ func (g *Game) resetGame() {
 	g.curX = 1
 	g.curY = 1
 	g.skyline = boardHeight - 1
-	g.gameStarted = false
-	g.gamePaused = false
-	g.gameOver = false
+	g.state = gameIntro
 	g.numLines = 0
 
 	g.board = make([][]int, boardHeight)
@@ -237,7 +242,7 @@ func (g *Game) drawBoard() {
 			instruction = fmt.Sprintf(instruction, g.curLevel)
 		} else if strings.HasPrefix(instruction, "Lines:") {
 			instruction = fmt.Sprintf(instruction, g.numLines)
-		} else if strings.HasPrefix(instruction, "GAME OVER") && !g.gameOver {
+		} else if strings.HasPrefix(instruction, "GAME OVER") && g.state != gameOver {
 			instruction = ""
 		}
 		tbprint(instructionsStartX, instructionsStartY+y, instructionsColor, backgroundColor, instruction)
@@ -255,7 +260,7 @@ func (g *Game) play() {
 		if g.skyline > 0 && g.getPiece() {
 			g.resetFallingTimer()
 		} else {
-			g.gameOver = true
+			g.state = gameOver
 		}
 	}
 }
@@ -341,37 +346,37 @@ func (g *Game) placePiece() {
 
 // The user pressed the 's' key to start the game.
 func (g *Game) start() {
-	if g.gameOver {
-		g.resetGame()
-	}
-	if g.gameStarted {
-		if g.gamePaused {
-			g.resume()
-		}
+	switch g.state {
+	case gameStarted:
 		return
+	case gamePaused:
+		g.resume()
+		return
+	case gameOver:
+		g.resetGame()
+		fallthrough
+	default:
+		g.state = gameStarted
+		g.getPiece()
+		g.placePiece()
+		g.resetFallingTimer()
 	}
-	g.getPiece()
-	g.placePiece()
-	g.gameStarted = true
-	g.gamePaused = false
-	g.resetFallingTimer()
 }
 
 // The user pressed the 'p' key to pause the game.
 func (g *Game) pause() {
-	if g.gameStarted {
-		if g.gamePaused {
-			g.resume()
-			return
-		}
+	switch g.state {
+	case gameStarted:
+		g.state = gamePaused
 		g.fallingTimer.Stop()
-		g.gamePaused = true
+	case gamePaused:
+		g.resume()
 	}
 }
 
 // The user pressed the left arrow.
 func (g *Game) moveLeft() {
-	if !g.gameStarted || g.gamePaused || g.gameOver {
+	if g.state != gameStarted {
 		return
 	}
 	for k := 0; k < numSquares; k++ {
@@ -387,7 +392,7 @@ func (g *Game) moveLeft() {
 
 // The user pressed the right arrow.
 func (g *Game) moveRight() {
-	if !g.gameStarted || g.gamePaused || g.gameOver {
+	if g.state != gameStarted {
 		return
 	}
 	for k := 0; k < numSquares; k++ {
@@ -403,7 +408,7 @@ func (g *Game) moveRight() {
 
 // The user pressed the up arrow in order to rotate the piece.
 func (g *Game) rotate() {
-	if !g.gameStarted || g.gamePaused || g.gameOver {
+	if g.state != gameStarted {
 		return
 	}
 	for k := 0; k < numSquares; k++ {
@@ -422,7 +427,7 @@ func (g *Game) rotate() {
 
 // Move the piece downward if possible.
 func (g *Game) moveDown() bool {
-	if !g.gameStarted || g.gamePaused || g.gameOver {
+	if g.state != gameStarted {
 		return false
 	}
 	for k := 0; k < numSquares; k++ {
@@ -440,7 +445,7 @@ func (g *Game) moveDown() bool {
 
 // The user pressed the space bar to make the piece fall.
 func (g *Game) fall() {
-	if !g.gameStarted || g.gamePaused || g.gameOver {
+	if g.state != gameStarted {
 		return
 	}
 	for k := 0; k < numSquares; k++ {
@@ -481,10 +486,8 @@ func (g *Game) getPiece() bool {
 
 // Resume after pausing.
 func (g *Game) resume() {
-	if g.gameStarted && g.gamePaused && !g.gameOver {
-		g.gamePaused = false
-		g.play()
-	}
+	g.state = gameStarted
+	g.play()
 }
 
 // Function tbprint draws a string.
