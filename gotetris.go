@@ -181,23 +181,23 @@ func (g *Game) Run() {
 		select {
 		case ev := <-eventQueue:
 			if ev.Type == termbox.EventKey {
-				switch ev.Key {
-				case termbox.KeyEsc:
-					return
-				case termbox.Key('s'):
-					g.start()
-				case termbox.Key('p'):
-					g.pause()
-				case termbox.KeyArrowLeft:
+				switch {
+				case ev.Key == termbox.KeyArrowLeft:
 					g.moveLeft()
-				case termbox.KeyArrowRight:
+				case ev.Key == termbox.KeyArrowRight:
 					g.moveRight()
-				case termbox.KeyArrowUp:
+				case ev.Key == termbox.KeyArrowUp:
 					g.rotate()
-				case termbox.KeyArrowDown:
+				case ev.Key == termbox.KeyArrowDown:
 					g.moveDown()
-				case termbox.Key(' '):
+				case ev.Ch == ' ':
 					g.fall()
+				case ev.Ch == 's':
+					g.start()
+				case ev.Ch == 'p':
+					g.pause()
+				case ev.Key == termbox.KeyEsc:
+					return
 				}
 			}
 		case <-g.fallingTimer.C:
