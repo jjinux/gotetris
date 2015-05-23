@@ -419,22 +419,22 @@ func (g *Game) rotate() {
 	}
 }
 
-// The user pressed the down arrow in order to drop the piece faster.
+// Move the piece downward if possible.
 func (g *Game) moveDown() bool {
-	//// 	if !g.gameStarted || g.gamePaused || g.gameOver {
-	////		return
-	////	}
-	//// 	for k := 0; k < numSquares; k++ {
-	//// 		g.dxPrime[k] = g.dx[k]
-	//// 		g.dyPrime[k] = g.dy[k]
-	//// 	}
-	//// 	if g.pieceFits(g.curX, g.curY + 1) {
-	//// 		g.erasePiece()
-	//// 		g.curY++
-	//// 		g.placePiece()
-	//// 		return true
-	//// 	}
-	return false
+	if !g.gameStarted || g.gamePaused || g.gameOver {
+		return false
+	}
+	for k := 0; k < numSquares; k++ {
+		g.dxPrime[k] = g.dx[k]
+		g.dyPrime[k] = g.dy[k]
+	}
+	if !g.pieceFits(g.curX, g.curY+1) {
+		return false
+	}
+	g.erasePiece()
+	g.curY++
+	g.placePiece()
+	return true
 }
 
 func (g *Game) getPiece() bool {
