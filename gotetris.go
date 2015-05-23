@@ -10,7 +10,7 @@ package main
 
 import (
 	"fmt"
-	//// 	"math/rand"
+	"math/rand"
 	"strings"
 	"time"
 
@@ -63,7 +63,8 @@ var instructions = []string{
 	"\u2190      Left",
 	"\u2192      Right",
 	"\u2191      Rotate",
-	"\u2193      Drop faster",
+	"\u2193      Down",
+	"Space  Fall",
 	"s      Start",
 	"p      Pause",
 	"esc    Exit",
@@ -199,6 +200,8 @@ func (g *Game) Run() {
 					g.rotate()
 				case termbox.KeyArrowDown:
 					g.moveDown()
+				case termbox.Key(' '):
+					g.fall()
 				}
 			}
 		case <-g.fallingTimer.C:
@@ -437,54 +440,54 @@ func (g *Game) moveDown() bool {
 	return true
 }
 
+// The user pressed the space bar to make the piece fall.
+func (g *Game) fall() {
+	if !g.gameStarted || g.gamePaused || g.gameOver {
+		return
+	}
+	for k := 0; k < numSquares; k++ {
+		g.dxPrime[k] = g.dx[k]
+		g.dyPrime[k] = g.dy[k]
+	}
+	if !g.pieceFits(g.curX, g.curY + 1) {
+		return
+	}
+	g.fallingTimer.Stop()
+	g.erasePiece()
+	for g.pieceFits(g.curX, g.curY + 1) {
+		g.curY++
+	}
+	g.placePiece()
+	g.resetFallingTimer()
+}
+
+// Get a random piece and try to place it.
 func (g *Game) getPiece() bool {
-	//// 	g.curPiece = 1 + rand.Int()%numTypes
-	//// 	g.curX = 5
-	//// 	g.curY = 0
-	//// 	for k := 0; k < numSquares; k++ {
-	//// 		g.dx[k] = g.dxBank[g.curPiece][k]
-	//// 		g.dy[k] = g.dyBank[g.curPiece][k]
-	//// 	}
-	//// 	for k = 0; k < numSquares; k++ {
-	//// 		g.dxPrime[k] = g.dx[k]
-	//// 		g.dyPrime[k] = g.dy[k]
-	//// 	}
-	//// 	if g.pieceFits(g.curX, g.curY) {
-	//// 		g.placePiece()
-	//// 		return true
-	//// 	}
-	return false
+	g.curPiece = 1 + rand.Int()%numTypes
+	g.curX = boardWidth / 2
+	g.curY = 0
+	for k := 0; k < numSquares; k++ {
+		g.dx[k] = g.dxBank[g.curPiece][k]
+		g.dy[k] = g.dyBank[g.curPiece][k]
+	}
+	for k := 0; k < numSquares; k++ {
+		g.dxPrime[k] = g.dx[k]
+		g.dyPrime[k] = g.dy[k]
+	}
+	if !g.pieceFits(g.curX, g.curY) {
+		return false
+	}
+	g.placePiece()
+	return true
 }
 
+// Resume after pausing.
 func (g *Game) resume() {
-	//// 	if g.gameStarted && g.gamePaused {
-	//// 		g.play()
-	//// 		g.gamePaused = false
-	//// 	}
+	if g.gameStarted && g.gamePaused && !g.gameOver {
+		g.gamePaused = false
+		g.play()
+	}
 }
-
-//// func (g *Game) fall() {
-//// 	for k := 0; k < numSquares; k++ {
-//// 		g.dxPrime[k] = g.dx[k]
-//// 		g.dyPrime[k] = g.dy[k]
-//// 	}
-//// 	if !g.pieceFits(g.curX, g.curY + 1) {
-//// 		return
-//// 	}
-//// 	g.fallingTimer.Stop()
-//// 	g.erasePiece()
-//// 	while g.pieceFits(g.curX, g.curY + 1) {
-//// 		g.curY++
-//// 	}
-//// 	g.placePiece()
-//// 	g.resetFallingTimer()
-//// }
-////
-//// func (g *Game) write(String message) {
-//// 	p = new(Element.tag("p"))
-//// 	p.text = message
-//// 	document.body.nodes.add(p)
-//// }
 
 // Function tbprint draws a string.
 func tbprint(x, y int, fg, bg termbox.Attribute, msg string) {
