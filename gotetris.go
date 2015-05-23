@@ -9,6 +9,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"strings"
 	"time"
@@ -225,7 +226,9 @@ func (g *Game) drawBoard() {
 	tbprint(titleStartX, titleStartY, instructionsColor, backgroundColor, title)
 	for y := 0; y < boardHeight; y++ {
 		for x := 0; x < boardWidth; x++ {
-			cellColor := pieceColors[g.board[y][x]]
+			cellValue := g.board[y][x]
+			absCellValue := int(math.Abs(float64(cellValue)))
+			cellColor := pieceColors[absCellValue]
 			termbox.SetCell(boardStartX+x, boardStartY+y, ' ', cellColor, cellColor)
 		}
 	}
