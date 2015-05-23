@@ -61,12 +61,7 @@ var instructions = []string{
 	"GAME OVER!",
 }
 
-/*
-This takes care of rendering everything.
-
-I haven't bothered to create a type for the view since it doesn't have any
-state yet.
-*/
+// This takes care of rendering everything.
 func render(g *Game) {
 	termbox.Clear(backgroundColor, backgroundColor)
 	tbprint(titleStartX, titleStartY, instructionsColor, backgroundColor, title)
