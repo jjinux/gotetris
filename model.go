@@ -1,17 +1,8 @@
-/*
-Package main contains a console-based implementation of Tetris.
-See the README for more details.
-
-I don't have any tests. It's just a simple video game ;)
-*/
-
 package main
 
 import (
 	"math/rand"
 	"time"
-
-	"github.com/nsf/termbox-go"
 )
 
 // Speeds
@@ -107,56 +98,6 @@ func (g *Game) resetGame() {
 
 	g.fallingTimer = time.NewTimer(time.Duration(1000000 * time.Second))
 	g.fallingTimer.Stop()
-}
-
-// Function run initializes termbox, calls render, and starts handling events.
-func (g *Game) Run() {
-	err := termbox.Init()
-	if err != nil {
-		panic(err)
-	}
-	defer termbox.Close()
-
-	g.resetGame()
-	render(g)
-
-	eventQueue := make(chan termbox.Event)
-	go func() {
-		for {
-			eventQueue <- termbox.PollEvent()
-		}
-	}()
-
-	for {
-		select {
-		case ev := <-eventQueue:
-			if ev.Type == termbox.EventKey {
-				switch {
-				case ev.Key == termbox.KeyArrowLeft:
-					g.moveLeft()
-				case ev.Key == termbox.KeyArrowRight:
-					g.moveRight()
-				case ev.Key == termbox.KeyArrowUp:
-					g.rotate()
-				case ev.Key == termbox.KeyArrowDown:
-					g.moveDown()
-				case ev.Key == termbox.KeySpace:
-					g.fall()
-				case ev.Ch == 's':
-					g.start()
-				case ev.Ch == 'p':
-					g.pause()
-				case ev.Key == termbox.KeyEsc:
-					return
-				}
-			}
-		case <-g.fallingTimer.C:
-			g.play()
-		default:
-			render(g)
-			time.Sleep(animationSpeed)
-		}
-	}
 }
 
 // Set the timer to make the pieces fall again.
@@ -407,9 +348,4 @@ func (g *Game) getPiece() bool {
 func (g *Game) resume() {
 	g.state = gameStarted
 	g.play()
-}
-
-// Function main runs a new Game.
-func main() {
-	NewGame().Run()
 }
