@@ -16,6 +16,29 @@ const defaultLevel = 1
 const maxLevel = 10
 const rowsPerLevel = 5
 
+// Pieces
+var dxBank = [][]int{
+	{},
+	{0, 1, -1, 0},
+	{0, 1, -1, -1},
+	{0, 1, -1, 1},
+	{0, -1, 1, 0},
+	{0, 1, -1, 0},
+	{0, 1, -1, -2},
+	{0, 1, 1, 0},
+}
+
+var dyBank = [][]int{
+	{},
+	{0, 0, 0, 1},
+	{0, 0, 0, 1},
+	{0, 0, 0, 1},
+	{0, 0, 1, 1},
+	{0, 0, 1, 1},
+	{0, 0, 0, 0},
+	{0, 0, 1, 1},
+}
+
 type gameState int
 
 const (
@@ -39,8 +62,6 @@ type Game struct {
 	dy           []int
 	dxPrime      []int
 	dyPrime      []int
-	dxBank       [][]int
-	dyBank       [][]int
 	fallingTimer *time.Timer
 }
 
@@ -72,29 +93,6 @@ func (g *Game) resetGame() {
 	g.dy = []int{0, 0, 0, 0}
 	g.dxPrime = []int{0, 0, 0, 0}
 	g.dyPrime = []int{0, 0, 0, 0}
-
-	g.dxBank = [][]int{
-		{},
-		{0, 1, -1, 0},
-		{0, 1, -1, -1},
-		{0, 1, -1, 1},
-		{0, -1, 1, 0},
-		{0, 1, -1, 0},
-		{0, 1, -1, -2},
-		{0, 1, 1, 0},
-	}
-
-	g.dyBank = [][]int{
-		{},
-		{0, 0, 0, 1},
-		{0, 0, 0, 1},
-		{0, 0, 0, 1},
-		{0, 0, 1, 1},
-		{0, 0, 1, 1},
-		{0, 0, 0, 0},
-		{0, 0, 1, 1},
-	}
-
 	g.fallingTimer = time.NewTimer(time.Duration(1000000 * time.Second))
 	g.fallingTimer.Stop()
 }
@@ -329,8 +327,8 @@ func (g *Game) getPiece() bool {
 	g.curX = boardWidth / 2
 	g.curY = 0
 	for k := 0; k < numSquares; k++ {
-		g.dx[k] = g.dxBank[g.curPiece][k]
-		g.dy[k] = g.dyBank[g.curPiece][k]
+		g.dx[k] = dxBank[g.curPiece][k]
+		g.dy[k] = dyBank[g.curPiece][k]
 	}
 	for k := 0; k < numSquares; k++ {
 		g.dxPrime[k] = g.dx[k]
