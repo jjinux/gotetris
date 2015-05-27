@@ -35,7 +35,8 @@ const boardStartX = defaultMarginWidth
 const boardStartY = titleEndY + defaultMarginHeight
 const boardWidth = 10
 const boardHeight = 16
-const boardEndX = boardStartX + boardWidth*2
+const cellWidth = 2
+const boardEndX = boardStartX + boardWidth*cellWidth
 const boardEndY = boardStartY + boardHeight
 const instructionsStartX = boardEndX + defaultMarginWidth
 const instructionsStartY = boardStartY
@@ -70,8 +71,9 @@ func render(g *Game) {
 			cellValue := g.board[y][x]
 			absCellValue := int(math.Abs(float64(cellValue)))
 			cellColor := pieceColors[absCellValue]
-			termbox.SetCell(boardStartX+2*x, boardStartY+y, ' ', cellColor, cellColor)
-			termbox.SetCell(boardStartX+2*x+1, boardStartY+y, ' ', cellColor, cellColor)
+			for i := 0; i < cellWidth; i++ {
+				termbox.SetCell(boardStartX+cellWidth*x+i, boardStartY+y, ' ', cellColor, cellColor)
+			}
 		}
 	}
 	for y, instruction := range instructions {
