@@ -112,13 +112,17 @@ func (g *Game) play() {
 	if g.moveDown() {
 		g.resetFallingTimer()
 	} else {
-		g.fillMatrix()
-		g.removeLines()
-		if g.skyline > 0 && g.getPiece() {
-			g.resetFallingTimer()
-		} else {
-			g.state = gameOver
-		}
+		g.lockPiece()
+	}
+}
+
+func (g *Game) lockPiece() {
+	g.fillMatrix()
+	g.removeLines()
+	if g.skyline > 0 && g.getPiece() {
+		g.resetFallingTimer()
+	} else {
+		g.state = gameOver
 	}
 }
 
@@ -319,6 +323,7 @@ func (g *Game) fall() {
 	}
 	g.placePiece()
 	g.resetFallingTimer()
+	g.lockPiece()
 }
 
 // Get a random piece and try to place it.
