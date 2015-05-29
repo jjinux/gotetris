@@ -116,6 +116,7 @@ func (g *Game) play() {
 	}
 }
 
+// Pressing spacebar should immediately lock the piece at the bottom.
 func (g *Game) lockPiece() {
 	g.fillMatrix()
 	g.removeLines()
