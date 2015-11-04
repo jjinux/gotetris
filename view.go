@@ -54,7 +54,7 @@ var instructions = []string{
 	"space  Fall",
 	"s      Start",
 	"p      Pause",
-	"esc    Exit",
+	"esc,q  Exit",
 	"",
 	"Level: %v",
 	"Lines: %v",
