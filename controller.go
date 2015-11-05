@@ -57,7 +57,7 @@ func main() {
 					g.start()
 				case ev.Ch == 'p':
 					g.pause()
-				case ev.Key == termbox.KeyEsc:
+				case ev.Ch == 'q' || ev.Key == termbox.KeyEsc || ev.Key == termbox.KeyCtrlC || ev.Key == termbox.KeyCtrlD:
 					return
 				}
 			}
