@@ -12,6 +12,7 @@ I don't have any tests. It's just a simple video game ;)
 package main
 
 import (
+	"math/rand"
 	"time"
 
 	"github.com/nsf/termbox-go"
@@ -22,6 +23,8 @@ const animationSpeed = 10 * time.Millisecond
 // Function main initializes termbox, renders the view, and starts
 // handling events.
 func main() {
+	rand.Seed(time.Now().UnixNano())
+
 	err := termbox.Init()
 	if err != nil {
 		panic(err)
