@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"math"
 	"strings"
-
 	"github.com/nsf/termbox-go"
 )
 
 // Colors
-const backgroundColor = termbox.ColorBlue
-const boardColor = termbox.ColorBlack
-const instructionsColor = termbox.ColorYellow
-
+const (
+  backgroundColor = termbox.ColorBlue
+  boardColor = termbox.ColorBlack
+  instructionsColor = termbox.ColorYellow
+)
 var pieceColors = []termbox.Attribute{
 	termbox.ColorBlack,
 	termbox.ColorRed,
@@ -25,22 +25,23 @@ var pieceColors = []termbox.Attribute{
 }
 
 // Layout
-const defaultMarginWidth = 2
-const defaultMarginHeight = 1
-const titleStartX = defaultMarginWidth
-const titleStartY = defaultMarginHeight
-const titleHeight = 1
-const titleEndY = titleStartY + titleHeight
-const boardStartX = defaultMarginWidth
-const boardStartY = titleEndY + defaultMarginHeight
-const boardWidth = 10
-const boardHeight = 16
-const cellWidth = 2
-const boardEndX = boardStartX + boardWidth*cellWidth
-const boardEndY = boardStartY + boardHeight
-const instructionsStartX = boardEndX + defaultMarginWidth
-const instructionsStartY = boardStartY
-
+const (
+  defaultMarginWidth = 2
+  defaultMarginHeight = 1
+  titleStartX = defaultMarginWidth
+  titleStartY = defaultMarginHeight
+  titleHeight = 1
+  titleEndY = titleStartY + titleHeight
+  boardStartX = defaultMarginWidth
+  boardStartY = titleEndY + defaultMarginHeight
+  boardWidth = 10
+  boardHeight = 16
+  cellWidth = 2
+  boardEndX = boardStartX + boardWidth*cellWidth
+  boardEndY = boardStartY + boardHeight
+  instructionsStartX = boardEndX + defaultMarginWidth
+  instructionsStartY = boardStartY
+)
 // Text in the UI
 const title = "TETRIS WRITTEN IN GO"
 
