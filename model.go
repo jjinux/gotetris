@@ -10,12 +10,13 @@ const slowestSpeed = 700 * time.Millisecond
 const fastestSpeed = 60 * time.Millisecond
 
 // Game play
-const numSquares = 4
-const numTypes = 7
-const defaultLevel = 1
-const maxLevel = 10
-const rowsPerLevel = 5
-
+const (
+  numSquares = 4
+  numTypes = 7
+  defaultLevel = 1
+  maxLevel = 10
+  rowsPerLevel = 5
+)
 // Pieces
 var dxBank = [][]int{
 	{},
