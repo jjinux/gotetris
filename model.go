@@ -11,12 +11,13 @@ const fastestSpeed = 60 * time.Millisecond
 
 // Game play
 const (
-  numSquares = 4
-  numTypes = 7
-  defaultLevel = 1
-  maxLevel = 10
-  rowsPerLevel = 5
+	numSquares   = 4
+	numTypes     = 7
+	defaultLevel = 1
+	maxLevel     = 10
+	rowsPerLevel = 5
 )
+
 // Pieces
 var dxBank = [][]int{
 	{},
@@ -285,6 +286,11 @@ func (g *Game) rotate() {
 			g.dy[k] = g.dyPrime[k]
 		}
 		g.placePiece()
+	} else {
+		for k := 0; k < numSquares; k++ {
+			g.dxPrime[k] = g.dx[k]
+			g.dyPrime[k] = g.dy[k]
+		}
 	}
 }
 
