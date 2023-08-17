@@ -1,4 +1,4 @@
-module gotetris
+module github.com/jjinux/gotetris
 
 go 1.16
 

@@ -4,6 +4,10 @@ This is a console-based version of Tetris written in Go.
 
 ![Screen shot](https://raw.githubusercontent.com/jjinux/gotetris/master/screen_shot.png)
 
+## Run directly
+
+	go run github.com/jjinux/gotetris@latest
+
 ## Install
 
 	go get github.com/jjinux/gotetris
